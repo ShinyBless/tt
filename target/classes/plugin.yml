@@ -1,0 +1,30 @@
+name: Galactic
+version: 1.0-SNAPSHOT
+main: me.shinybless.Galactic.Main
+authors: [ ShinyBless ]
+
+commands:
+  nofall:
+  hasteyboys:
+  cutclean:
+  switcheroo:
+  superheroes:
+  skyoff:
+  underoff:
+  scens:
+  config:
+  staffconfig:
+  muteall:
+  mute:
+  unmute:
+  start:
+  team:
+  teamchat:
+  tc:
+  staffchat:
+  sc:
+  captains:
+  choose:
+  towers:
+  dropiron:
+  droplapis:
