@@ -3,6 +3,7 @@ package me.shinybless.Galactic.Commands;
 import me.shinybless.Galactic.Eventos;
 import me.shinybless.Galactic.Main;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -65,6 +66,7 @@ public class Teams implements Listener, CommandExecutor {
                             redteam.add(target);
                             target.sendMessage("§7Ahora estás en el equipo §cRojo");
                             sender.sendMessage("§e" + target.getName() + " §7ahora forma parte del equipo §cRojo");
+                            target.setPlayerListName("§c" + target.getName());
                             return true;
                         }
                     } else if (args[1].equalsIgnoreCase("leave")) {
@@ -76,6 +78,7 @@ public class Teams implements Listener, CommandExecutor {
                             redteam.remove(target);
                             target.sendMessage("§7Ya no estás en el equipo §cRojo");
                             sender.sendMessage("§e" + target.getName() + " §7ya no forma parte del equipo §cRojo");
+                            target.setPlayerListName("§f" + target.getName());
                             return true;
                         }
                     } else {
@@ -91,6 +94,7 @@ public class Teams implements Listener, CommandExecutor {
                             blueteam.add(target);
                             target.sendMessage("§7Ahora estás en el equipo §9Azul");
                             sender.sendMessage("§e" + target.getName() + " §7ahora forma parte del equipo §9Azul");
+                            target.setPlayerListName("§9" + target.getName());
                             return true;
                         }
                     } else if (args[1].equalsIgnoreCase("leave")) {
@@ -100,6 +104,7 @@ public class Teams implements Listener, CommandExecutor {
                             blueteam.remove(target);
                             target.sendMessage("§7Ya no estás en el equipo §9Azul");
                             sender.sendMessage("§e" + target.getName() + " §7ya no forma parte del equipo §9Azul");
+                            target.setPlayerListName("§f" + target.getName());
 
                             return true;
                         }
@@ -197,10 +202,14 @@ public class Teams implements Listener, CommandExecutor {
         String message = event.getMessage();
         String teamprefix = "§7[§bTeamChat§7] ";
         String staffprefix = "§7[§dStaffChat§7] ";
+        if (message.contains("&k")) {
+            player.sendMessage("§cNo puedes escribir &k!");
+            return;
+        }
         if (globalchat.contains(player)) {
             if (teamchat.contains(player)) {
                 if (staffchat.contains(player)) {
-                    event.setFormat(staffprefix + "§6" + player.getName() + " §8➩ §b" + message);
+                    event.setFormat(staffprefix + "§6" + player.getName() + " §8➩ §b" + ChatColor.translateAlternateColorCodes('&', message));
                     event.getRecipients().clear();
                     event.getRecipients().addAll(Eventos.staff);
                 } else if (blueteam.contains(player)) {
@@ -213,17 +222,19 @@ public class Teams implements Listener, CommandExecutor {
                     event.getRecipients().addAll(redteam);
                 } else {
                     if (player.hasPermission("galactic.prefix.owner")) {
-                        event.setFormat("§bOwner §7" + player.getName() + " §8➩ §f" + message);
+                        event.setFormat("§bOwner §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
+                    } else if (player.hasPermission("galactic.prefix.programador")){
+                        event.setFormat("§dProgramador §7" +  player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                     } else if (player.hasPermission("galactic.prefix.admin")) {
-                        event.setFormat("§1Admin §7" + player.getName() + " §8➩ §f" + message);
+                        event.setFormat("§1Admin §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                     } else if (player.hasPermission("galactic.prefix.staff")) {
-                        event.setFormat("§9Staff §7" + player.getName() + " §8➩ §f" + message);
+                        event.setFormat("§9Staff §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                     } else if (player.hasPermission("galactic.prefix.host")) {
-                        event.setFormat("§cHost §7" + player.getName() + " §8➩ §f" + message);
+                        event.setFormat("§cHost §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                     } else if (player.hasPermission("galactic.prefix.aurora")) {
-                        event.setFormat("\uD83C\uDF20 §aAurora §7" + player.getName() + " §8➩ §f" + message);
+                        event.setFormat("\uD83C\uDF20 §aAurora §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                     } else if (player.hasPermission("galactic.prefix.stella")){
-                        event.setFormat("§e⭐ §6Stella §7" + player.getName() + " §8➩ §f" + message);
+                        event.setFormat("§e⭐ §6Stella §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                     } else {
                         event.setFormat("§7" + player.getName() + " §8➩ §f" + message);
                     }
@@ -234,17 +245,19 @@ public class Teams implements Listener, CommandExecutor {
                 event.getRecipients().addAll(Eventos.staff);
             } else {
                 if (player.hasPermission("galactic.prefix.owner")) {
-                    event.setFormat("§bOwner §7" + player.getName() + " §8➩ §f" + message);
+                    event.setFormat("§bOwner §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
+                }else if (player.hasPermission("galactic.prefix.programador")){
+                    event.setFormat("§dProgramador §7" +  player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                 } else if (player.hasPermission("galactic.prefix.admin")) {
-                    event.setFormat("§1Admin §7" + player.getName() + " §8➩ §f" + message);
+                    event.setFormat("§1Admin §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                 } else if (player.hasPermission("galactic.prefix.staff")) {
-                    event.setFormat("§9Staff §7" + player.getName() + " §8➩ §f" + message);
+                    event.setFormat("§9Staff §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                 } else if (player.hasPermission("galactic.prefix.host")) {
-                    event.setFormat("§cHost §7" + player.getName() + " §8➩ §f" + message);
+                    event.setFormat("§cHost §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                 } else if (player.hasPermission("galactic.prefix.aurora")) {
-                    event.setFormat("\uD83C\uDF20 §aAurora §7" + player.getName() + " §8➩ §f" + message);
+                    event.setFormat("§a✦ Aurora §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                 } else if (player.hasPermission("galactic.prefix.stella")){
-                    event.setFormat("§e⭐ §6Stella §7" + player.getName() + " §8➩ §f" + message);
+                    event.setFormat("§e⭐ §6Stella §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
                 } else {
                     event.setFormat("§7" + player.getName() + " §8➩ §f" + message);
                 }

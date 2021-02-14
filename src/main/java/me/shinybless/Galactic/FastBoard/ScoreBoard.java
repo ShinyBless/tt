@@ -16,10 +16,10 @@ public class ScoreBoard implements Listener{
     public static void update(FastBoard board){
 
         board.updateLines("",
-                "§cRed§f: " + Towers.score.get("RedTeam"),
+                "§cRed §0➩ §f" + Towers.score.get("RedTeam"),
                 "",
-                "§9Blue§f: " + Towers.score.get("BlueTeam"),
+                "§9Blue §0➩ §f" + Towers.score.get("BlueTeam"),
                 "",
-                "§6Time§f: " + Towers.timer);
+                "§6Time §0➩ §f" + Towers.timer);
     }
 }

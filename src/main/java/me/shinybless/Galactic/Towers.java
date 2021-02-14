@@ -648,7 +648,7 @@ public class Towers implements Listener, CommandExecutor {
                                 if (block.getZ() >= z1b) {
                                     if (block.getZ() <= z2b) {
                                         score.put("RedTeam", redscore + 1);
-                                        if (redscore >= 10) {
+                                        if (redscore + 1 >= 10) {
                                             Bukkit.broadcastMessage("§7[§6Towers§7]➛ El equipo §cRojo §7ha ganado!");
                                             player.teleport(redspawn);
                                             for (Player p : Bukkit.getOnlinePlayers()) {
@@ -681,7 +681,7 @@ public class Towers implements Listener, CommandExecutor {
                                 if (block.getZ() >= z1r) {
                                     if (block.getZ() <= z2r) {
                                         score.put("BlueTeam", bluescore + 1);
-                                        if (bluescore >= 10) {
+                                        if (bluescore + 1 >= 10) {
                                             Bukkit.broadcastMessage("§7[§6Towers§7]➛ El equipo §9Azul §7ha ganado!");
                                             player.teleport(bluespawn);
                                             for (Player p : Bukkit.getOnlinePlayers()) {

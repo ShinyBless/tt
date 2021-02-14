@@ -32,6 +32,7 @@ public class Staff implements CommandExecutor, Listener {
         plugin.getCommand("config").setExecutor(this);
         plugin.getCommand("muteall").setExecutor(this);
         plugin.getCommand("captains").setExecutor(this);
+        plugin.getCommand("broadcast").setExecutor(this);
     }
 
     ArrayList<UUID> mute = new ArrayList<>();
@@ -178,6 +179,14 @@ public class Staff implements CommandExecutor, Listener {
                 sender.sendMessage("§6➛SuperHeroes: §7Al empezar te da un efecto permanente que puede ser Fuerza, Doble Vida, Speed 2, Haste 2, Jump Boost 4, o Resistencia 2.");
             }
             return true;
+        } else if (cmd.getName().equalsIgnoreCase("broadcast") && sender.hasPermission("galactic.broadcast")){
+            StringBuilder message = new StringBuilder("");
+            for (String part : args) {
+                if (!message.toString().equals(""))
+                    message.append(" ");
+                message.append(part);
+            }
+            Bukkit.getServer().broadcastMessage(ChatColor.translateAlternateColorCodes('&', "§7[§9Galactic§7] ➛ §f" + message.toString()));
         }
         return false;
     }
