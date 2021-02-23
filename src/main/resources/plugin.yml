@@ -14,9 +14,11 @@ commands:
   scens:
   config:
   staffconfig:
-  muteall:
   mute:
   unmute:
+  muteall:
+  jail:
+  unjail:
   start:
   team:
   teamchat:
@@ -29,3 +31,6 @@ commands:
   dropiron:
   droplapis:
   broadcast:
+  bc:
+  whitelist:
+  givepowers:

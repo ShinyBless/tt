@@ -1,8 +1,11 @@
 package me.shinybless.Galactic;
 
 import me.shinybless.Galactic.Commands.Comandos;
+import me.shinybless.Galactic.Commands.Staff;
 import me.shinybless.Galactic.Commands.Teams;
+import me.shinybless.Galactic.FastBoard.FastBoard;
 import org.bukkit.*;
+import org.bukkit.Color;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.ItemDespawnEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
@@ -28,10 +32,14 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.awt.*;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Towers implements Listener, CommandExecutor {
-    private Main plugin;
+    private static Main plugin;
 
     public Towers(Main plugin) {
         this.plugin = plugin;
@@ -41,12 +49,23 @@ public class Towers implements Listener, CommandExecutor {
         plugin.getCommand("droplapis").setExecutor(this);
     }
 
+    public static boolean stopTimer = false;
     public static boolean TowersStart = false;
+
+    public static boolean TimedRespawn = false;
+    public static boolean TimedRespawn2 = false;
 
     Location irongen = new Location(Bukkit.getWorld("world"), 0.4, 203, 1166.4);
     Location lapisgen = new Location(Bukkit.getWorld("world"), 0.4, 203, 1138);
+    public static Location redspawn = new Location(Bukkit.getWorld("world"), 82, 192, 1152);
+    public static Location bluespawn = new Location(Bukkit.getWorld("world"), -83, 192, 1152);
+
     public static String timer;
+
     public static HashMap<String, Integer> score = new HashMap<>();
+    public static HashMap<String, Integer> points = new HashMap<>();
+    public static HashMap<String, Integer> kills = new HashMap<>();
+    public static HashMap<String, Integer> muertes = new HashMap<>();
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -57,17 +76,48 @@ public class Towers implements Listener, CommandExecutor {
             } else if (args.length == 1) {
                 if (args[0].equalsIgnoreCase("start")) {
                     if (!TowersStart) {
+                        Bukkit.broadcastMessage("§7[§9Galactic§7]➛ El chat ha sido muteado");
                         Bukkit.broadcastMessage("§7[§6Towers§7]➛ El juego comenzará en §b15 segundos§7!");
+                        Staff.MuteAll = true;
                         new BukkitRunnable() {
                             public void run() {
+                                TowersStart = true;
                                 for (Player p : Bukkit.getOnlinePlayers()) {
-                                    TowersStart = true;
                                     GameStart(p);
                                     time();
                                     StartSuperHeroes(p);
-                                    ((Player) sender).getWorld().dropItem(irongen, new ItemStack(Material.IRON_INGOT));
-                                    ((Player) sender).getWorld().dropItem(lapisgen, new ItemStack(Material.INK_SACK, 1, (short) 4));
                                 }
+                                Staff.MuteAll = false;
+                                Bukkit.broadcastMessage("§7[§9Galactic§7]➛ El chat ha sido desmuteado");
+                                ((Player) sender).getWorld().dropItem(irongen, new ItemStack(Material.IRON_INGOT));
+                                ((Player) sender).getWorld().dropItem(lapisgen, new ItemStack(Material.INK_SACK, 1, (short) 4));
+                            }
+                        }.runTaskLater(plugin, 300L);
+                        new BukkitRunnable(){
+                            public void run(){
+                                Bukkit.broadcastMessage("§7[§6Towers§7]➛ Reglas de Towers");
+                                Bukkit.broadcastMessage("§61- §fProhibido salirse, a excepción de que sea chosen o todo el team se rinda.");
+                            }
+                        }.runTaskLater(plugin, 60L);
+                        new BukkitRunnable(){
+                            public void run(){
+                                Bukkit.broadcastMessage("§62- §fGriefing OFF§f.");
+                            }
+                        }.runTaskLater(plugin, 120L);
+                        new BukkitRunnable(){
+                            public void run(){
+                                Bukkit.broadcastMessage("§63- §fSi es Sky OFF, solo puede haber puentes desde el centro al principio de la base enemiga, y desde finales de la base enemiga hacia su punto.");
+                            }
+                        }.runTaskLater(plugin, 180L);
+                        new BukkitRunnable(){
+                            public void run(){
+                                Bukkit.broadcastMessage("§64- §fProhibido campear en el punto. Se puede campear en el puente del spawn, abajo del punto.");
+                            }
+                        }.runTaskLater(plugin, 240L);
+                        new BukkitRunnable(){
+                            public void run(){
+                                Bukkit.broadcastMessage("§65- §fProhibido buscar vacios legales.");
+                                Bukkit.broadcastMessage("§6Para mas detalles, ir al canal de #reglas en el discord.");
                             }
                         }.runTaskLater(plugin, 300L);
                     } else {
@@ -94,9 +144,7 @@ public class Towers implements Listener, CommandExecutor {
         return false;
     }
 
-    public void GameStart(Player player) {
-        Location redspawn = new Location(player.getWorld(), 82, 192, 1152);
-        Location bluespawn = new Location(player.getWorld(), -83, 192, 1152);
+    public static void GameStart(Player player) {
         if (Teams.redteam.contains(player)) {
             player.teleport(redspawn);
             player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
@@ -113,6 +161,66 @@ public class Towers implements Listener, CommandExecutor {
             player.getInventory().setChestplate(bluechest());
             player.getInventory().setLeggings(bluelegs());
             player.getInventory().setBoots(blueboots());
+        }
+        player.setGameMode(GameMode.SURVIVAL);
+        player.removePotionEffect(PotionEffectType.SATURATION);
+        FastBoard board = new FastBoard(player);
+        board.updateTitle("§7●§9Galactic§7●");
+        Main.boards.put(player.getName(), board);
+    }
+
+    public void Stats () {
+        List<Integer> killtop = new LinkedList<>(kills.values());
+        Collections.sort(killtop);
+        Collections.reverse(killtop);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (score.get("BlueTeam") == 10) {
+                p.sendMessage("§1-----------------------");
+            } else if (score.get("RedTeam") == 10) {
+                p.sendMessage("§4-----------------------");
+            }
+            p.sendMessage("            §6Ganador");
+            if (score.get("BlueTeam") == 10) {
+                p.sendMessage("          §7Equipo §9Azul");
+            } else if (score.get("RedTeam") == 10) {
+                p.sendMessage("          §7Equipo §cRojo");
+            }
+            p.sendMessage("           §7Top Kills");
+            if (kills.get(p.getName()).equals(killtop.get(0))) {
+                String kt1 = p.getName();
+                p.sendMessage("       §61- §7" + kt1 + " §8⇨ §f" + killtop.get(0));
+            }
+            if (kills.get(p.getName()).equals(killtop.get(1))) {
+                String kt2 = p.getName();
+                p.sendMessage("       §62- §7" + kt2 + " §8⇨ §f" + killtop.get(1));
+            }
+            if (kills.get(p.getName()).equals(killtop.get(2))) {
+                String kt3 = p.getName();
+                p.sendMessage("       §63- §7" + kt3 + " §8⇨ §f" + killtop.get(2));
+            }
+            p.sendMessage("       §6Tus Kills §8⇨ §f" + kills.get(p.getName()));
+            if (score.get("BlueTeam") == 10) {
+                p.sendMessage("§1-----------------------");
+            } else if (score.get("RedTeam") == 10) {
+                p.sendMessage("§4-----------------------");
+            }
+        }
+    }
+    @EventHandler
+    public void onKill(PlayerDeathEvent event) {
+        Player player = event.getEntity().getPlayer();
+        if (player.getKiller() != null) {
+            Player killer = (Player) player.getKiller();
+            kills.putIfAbsent(killer.getName(), 0);
+            muertes.putIfAbsent(player.getName(), 0);
+            int lvl = killer.getLevel();
+            int kill = kills.get(killer.getName());
+            int muerte = muertes.get(player.getName());
+            if (TowersStart) {
+                killer.setLevel(lvl + 4);
+                kills.put(killer.getName(), kill + 1);
+                muertes.put(player.getName(), muerte + 1);
+            }
         }
     }
 
@@ -226,7 +334,7 @@ public class Towers implements Listener, CommandExecutor {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Location ba = new Location(player.getWorld(), -81, 189, 1149);
-        Location ba2 = new Location(player.getWorld(), -87, 208, 1155);
+        Location ba2 = new Location(player.getWorld(), -87, 207, 1155);
         int xb1 = Math.min(ba.getBlockX(), ba2.getBlockX());
         int xb2 = Math.max(ba.getBlockX(), ba2.getBlockX());
         int yb1 = Math.min(ba.getBlockY(), ba2.getBlockY());
@@ -249,7 +357,7 @@ public class Towers implements Listener, CommandExecutor {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Location br = new Location(player.getWorld(), 81, 189, 1149);
-        Location br2 = new Location(player.getWorld(), 87, 208, 1155);
+        Location br2 = new Location(player.getWorld(), 87, 207, 1155);
         int xr1 = Math.min(br.getBlockX(), br2.getBlockX());
         int xr2 = Math.max(br.getBlockX(), br2.getBlockX());
         int yr1 = Math.min(br.getBlockY(), br2.getBlockY());
@@ -321,7 +429,7 @@ public class Towers implements Listener, CommandExecutor {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Location ba = new Location(player.getWorld(), -81, 189, 1149);
-        Location ba2 = new Location(player.getWorld(), -87, 208, 1155);
+        Location ba2 = new Location(player.getWorld(), -87, 207, 1155);
         int xb1 = Math.min(ba.getBlockX(), ba2.getBlockX());
         int xb2 = Math.max(ba.getBlockX(), ba2.getBlockX());
         int yb1 = Math.min(ba.getBlockY(), ba2.getBlockY());
@@ -344,7 +452,7 @@ public class Towers implements Listener, CommandExecutor {
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Location br = new Location(player.getWorld(), 81, 189, 1149);
-        Location br2 = new Location(player.getWorld(), 87, 208, 1155);
+        Location br2 = new Location(player.getWorld(), 87, 207, 1155);
         int xr1 = Math.min(br.getBlockX(), br2.getBlockX());
         int xr2 = Math.max(br.getBlockX(), br2.getBlockX());
         int yr1 = Math.min(br.getBlockY(), br2.getBlockY());
@@ -384,7 +492,7 @@ public class Towers implements Listener, CommandExecutor {
                                 public void run() {
                                     irongen.getWorld().dropItem(irongen, new ItemStack(Material.IRON_INGOT));
                                 }
-                            }.runTaskLater(plugin, 300L);
+                            }.runTaskLater(plugin, 200L);
                         }
                     }
                 }
@@ -426,66 +534,160 @@ public class Towers implements Listener, CommandExecutor {
         Location redspawn = new Location(player.getWorld(), 84, 192, 1152);
         Location bluespawn = new Location(player.getWorld(), -83, 192, 1152);
         if (TowersStart) {
-            if (Teams.redteam.contains(player)) {
-                event.setRespawnLocation(redspawn);
-                player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
-                player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
-                player.getInventory().setHelmet(redhelm());
-                player.getInventory().setChestplate(redchest());
-                player.getInventory().setLeggings(redlegs());
-                player.getInventory().setBoots(redboots());
-                if (Scenarios.health.contains(player.getName())) {
-                    player.setHealth(40);
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
-                } else {
-                    player.setHealth(20);
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+            if (TimedRespawn){
+                player.setGameMode(GameMode.SPECTATOR);
+                new BukkitRunnable(){
+                    public void run(){
+                        player.setGameMode(GameMode.SURVIVAL);
+                        if (Teams.redteam.contains(player)) {
+                            event.setRespawnLocation(redspawn);
+                            player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
+                            player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
+                            player.getInventory().setHelmet(redhelm());
+                            player.getInventory().setChestplate(redchest());
+                            player.getInventory().setLeggings(redlegs());
+                            player.getInventory().setBoots(redboots());
+                        } else if (Teams.blueteam.contains(player)) {
+                            event.setRespawnLocation(bluespawn);
+                            player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
+                            player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
+                            player.getInventory().setHelmet(bluehelm());
+                            player.getInventory().setChestplate(bluechest());
+                            player.getInventory().setLeggings(bluelegs());
+                            player.getInventory().setBoots(blueboots());
+                        }
+                        if (Scenarios.health.contains(player.getName())) {
+                            player.setHealth(40);
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        } else {
+                            player.setHealth(20);
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        }
+                        if (Scenarios.strength.contains(player.getName())) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 0));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        }
+                        if (Scenarios.speed.contains(player.getName())) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        }
+                        if (Scenarios.haste.contains(player.getName())) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 1));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                        }
+                        if (Scenarios.jump.contains(player.getName())) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 3));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        }
+                        if (Scenarios.resistance.contains(player.getName())) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 0));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        }
+                    }
+                }.runTaskLater(plugin, 100L);
+            } else if (TimedRespawn2){
+                player.setGameMode(GameMode.SPECTATOR);
+                new BukkitRunnable(){
+                    public void run(){
+                        player.setGameMode(GameMode.SURVIVAL);
+                        if (Teams.redteam.contains(player)) {
+                            event.setRespawnLocation(redspawn);
+                            player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
+                            player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
+                            player.getInventory().setHelmet(redhelm());
+                            player.getInventory().setChestplate(redchest());
+                            player.getInventory().setLeggings(redlegs());
+                            player.getInventory().setBoots(redboots());
+                        } else if (Teams.blueteam.contains(player)) {
+                            event.setRespawnLocation(bluespawn);
+                            player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
+                            player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
+                            player.getInventory().setHelmet(bluehelm());
+                            player.getInventory().setChestplate(bluechest());
+                            player.getInventory().setLeggings(bluelegs());
+                            player.getInventory().setBoots(blueboots());
+                        }
+                        if (Scenarios.health.contains(player.getName())) {
+                            player.setHealth(40);
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        } else {
+                            player.setHealth(20);
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        }
+                        if (Scenarios.strength.contains(player.getName())) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 0));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        }
+                        if (Scenarios.speed.contains(player.getName())) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        }
+                        if (Scenarios.haste.contains(player.getName())) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 1));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                        }
+                        if (Scenarios.jump.contains(player.getName())) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 3));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        }
+                        if (Scenarios.resistance.contains(player.getName())) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 0));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
+                        }
+                    }
+                }.runTaskLater(plugin, 200L);
+            } else {
+                if (Teams.redteam.contains(player)) {
+                    event.setRespawnLocation(redspawn);
+                    player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
+                    player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
+                    player.getInventory().setHelmet(redhelm());
+                    player.getInventory().setChestplate(redchest());
+                    player.getInventory().setLeggings(redlegs());
+                    player.getInventory().setBoots(redboots());
+                } else if (Teams.blueteam.contains(player)) {
+                    event.setRespawnLocation(bluespawn);
+                    player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
+                    player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
+                    player.getInventory().setHelmet(bluehelm());
+                    player.getInventory().setChestplate(bluechest());
+                    player.getInventory().setLeggings(bluelegs());
+                    player.getInventory().setBoots(blueboots());
                 }
-                if (Scenarios.strength.contains(player.getName())) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 0));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
-                }
-                if (Scenarios.speed.contains(player.getName())) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
-                }
-                if (Scenarios.haste.contains(player.getName())) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, 1));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
-                }
-                if (Scenarios.jump.contains(player.getName())) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, Integer.MAX_VALUE, 3));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 120, 8));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
-                }
-                if (Scenarios.resistance.contains(player.getName())) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, Integer.MAX_VALUE, 0));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10, 4));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 120, 8));
-                }
-            } else if (Teams.blueteam.contains(player)) {
-                event.setRespawnLocation(bluespawn);
-                player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
-                player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
-                player.getInventory().setHelmet(bluehelm());
-                player.getInventory().setChestplate(bluechest());
-                player.getInventory().setLeggings(bluelegs());
-                player.getInventory().setBoots(blueboots());
                 if (Scenarios.health.contains(player.getName())) {
                     player.setHealth(40);
                     player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 15, 2));
@@ -534,7 +736,7 @@ public class Towers implements Listener, CommandExecutor {
         }
     }
 
-    public void StartSuperHeroes (Player player) {
+    public static void StartSuperHeroes (Player player) {
         int poder = Eventos.getRandomInt(5);
         if (Comandos.SuperHeroes) {
             if (!Scenarios.health.contains(player.getName()) &&
@@ -648,13 +850,16 @@ public class Towers implements Listener, CommandExecutor {
                                 if (block.getZ() >= z1b) {
                                     if (block.getZ() <= z2b) {
                                         score.put("RedTeam", redscore + 1);
-                                        if (redscore + 1 >= 10) {
+                                        if (redscore + 1 == 10) {
+                                            Bukkit.broadcastMessage("§7[§6Towers§7]➛ §e" + player.getName() + " §7ha anotado un punto para el equipo §cRojo§7! Tienen §f" + (redscore + 1) + " §7punto/s!");
                                             Bukkit.broadcastMessage("§7[§6Towers§7]➛ El equipo §cRojo §7ha ganado!");
                                             player.teleport(redspawn);
                                             for (Player p : Bukkit.getOnlinePlayers()) {
                                                 p.setGameMode(GameMode.SPECTATOR);
                                                 p.playSound(p.getLocation(), Sound.ENTITY_FIREWORK_LAUNCH, 10, 1);
+                                                Stats();
                                             }
+                                            TowersStart = false;
                                         } else {
                                             Bukkit.broadcastMessage("§7[§6Towers§7]➛ §e" + player.getName() + " §7ha anotado un punto para el equipo §cRojo§7! Tienen §f" + (redscore + 1) + " §7punto/s!");
                                             player.teleport(redspawn);
@@ -681,13 +886,16 @@ public class Towers implements Listener, CommandExecutor {
                                 if (block.getZ() >= z1r) {
                                     if (block.getZ() <= z2r) {
                                         score.put("BlueTeam", bluescore + 1);
-                                        if (bluescore + 1 >= 10) {
+                                        if (bluescore + 1 == 10) {
+                                            Bukkit.broadcastMessage("§7[§6Towers§7]➛ §e" + player.getName() + " §7ha anotado un punto para el equipo §9Azul§7! Tienen §f" + (bluescore + 1) + " §7punto/s");
                                             Bukkit.broadcastMessage("§7[§6Towers§7]➛ El equipo §9Azul §7ha ganado!");
                                             player.teleport(bluespawn);
                                             for (Player p : Bukkit.getOnlinePlayers()) {
                                                 p.setGameMode(GameMode.SPECTATOR);
                                                 p.playSound(p.getLocation(), Sound.ENTITY_FIREWORK_LAUNCH, 10, 1);
+                                                Stats();
                                             }
+                                            TowersStart = false;
                                         } else {
                                             Bukkit.broadcastMessage("§7[§6Towers§7]➛ §e" + player.getName() + " §7ha anotado un punto para el equipo §9Azul§7! Tienen §f" + (bluescore + 1) + " §7punto/s");
                                             player.teleport(bluespawn);
@@ -792,14 +1000,15 @@ public class Towers implements Listener, CommandExecutor {
         return blueboots;
     }
 
+    public static int min = 00;
+    public static int sec = 00;
+    public static int hor = 00;
+    String secc;
+    String minn;
+    String horr;
+
     public void time(){
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-            int min = 00;
-            int sec = 00;
-            int hor = 00;
-            String secc;
-            String minn;
-            String horr;
             @Override
             public void run() {
                 if (sec < 10){
@@ -826,6 +1035,18 @@ public class Towers implements Listener, CommandExecutor {
                 if (min == 60){
                     min = 00;
                     hor = hor + 1;
+                }
+                if (min == 30 && hor == 0){
+                    if (!TimedRespawn) {
+                        TimedRespawn = true;
+                        Bukkit.broadcastMessage("§7[§9Galactic§7]➛ Han pasado §f30 minutos §7de juego. Ahora los jugadores tardarán §d5 segundos §7en respawnear.");
+                    }
+                }
+                if (hor == 1){
+                    if (!TimedRespawn2) {
+                        TimedRespawn2 = true;
+                        Bukkit.broadcastMessage("§7[§9Galactic§7]➛ Han pasado §f60 minutos §7de juego. Ahora los jugadores tardarán §d10 segundos §7en respawnear.");
+                    }
                 }
             }
         },0L, 20L);

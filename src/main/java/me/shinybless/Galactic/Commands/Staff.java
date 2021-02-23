@@ -2,15 +2,20 @@ package me.shinybless.Galactic.Commands;
 
 import me.shinybless.Galactic.Main;
 import me.shinybless.Galactic.MenuItems;
+import me.shinybless.Galactic.Towers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.inventory.Inventory;
@@ -28,19 +33,20 @@ public class Staff implements CommandExecutor, Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         plugin.getCommand("mute").setExecutor(this);
         plugin.getCommand("unmute").setExecutor(this);
-        plugin.getCommand("staffconfig").setExecutor(this);
-        plugin.getCommand("config").setExecutor(this);
         plugin.getCommand("muteall").setExecutor(this);
-        plugin.getCommand("captains").setExecutor(this);
+        plugin.getCommand("jail").setExecutor(this);
+        plugin.getCommand("unjail").setExecutor(this);
+        plugin.getCommand("staffconfig").setExecutor(this);
         plugin.getCommand("broadcast").setExecutor(this);
+        plugin.getCommand("bc").setExecutor(this);
     }
 
-    ArrayList<UUID> mute = new ArrayList<>();
-
-    public static boolean RedCaptain = true;
-    public static boolean BlueCaptain = false;
+    public static ArrayList<UUID> mute = new ArrayList<>();
+    public static ArrayList<UUID> jail = new ArrayList<>();
 
     public static boolean MuteAll = false;
+
+    public static Location jailzone = new Location(Bukkit.getWorld("world"), 0.5, 207, 1199.5);
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -63,7 +69,7 @@ public class Staff implements CommandExecutor, Listener {
                 if (target == null){
                     sender.sendMessage("§7El jugador no está en linea!");
                 } else {
-                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ El jugador " + ChatColor.YELLOW + target.getName() + " §7ha sido muteado por " + args[1] + " minutos");
+                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ El jugador " + ChatColor.YELLOW + target.getName() + " §7ha sido muteado por " + args[1] + " minuto/s");
                     mute.add(target.getUniqueId());
                     int time = Integer.parseInt(args[1]);
                     new BukkitRunnable() {
@@ -100,86 +106,8 @@ public class Staff implements CommandExecutor, Listener {
                 Bukkit.broadcastMessage("§7[§9Galactic§7]➛ El chat ha sido desmuteado por §e" + sender.getName());
             }
         } else if (sender.hasPermission("galactic.staffconfig") && cmd.getName().equalsIgnoreCase("StaffConfig")) {
-            StaffMenu((Player) sender);
-        } else if (sender.hasPermission("galactic.captains") && cmd.getName().equalsIgnoreCase("captains")){
-            if (args.length == 0){
-                sender.sendMessage("§7Faltaron argumentos!");
-                sender.sendMessage("§7Elegir captains: /captains add/remove blue/red <jugador>!");
-                sender.sendMessage("§7Empezar los captains: /captains start!");
-            } else if (args.length == 1){
-                if (args[0].equalsIgnoreCase("start")){
-                    if (!Teams.redcaptain.isEmpty()){
-                        if (!Teams.bluecaptain.isEmpty()){
-                            Bukkit.broadcastMessage("§7[§6Captains§7]➛ Turno de §e" + Teams.redcaptain.get(0) + " §7 para elegir!");
-                            Teams.redcaptain.get(0).sendMessage("§7Elige un jugador usando /choose <jugador> ");
-                        } else {
-                            sender.sendMessage("§7No se puede empezar al no haber un capitan del equipo Azul");
-                        }
-                    } else {
-                        sender.sendMessage("§7No se puede empezar al no haber un capitan del equipo Rojo");
-                    }
-                }
-            }
-        } else if (cmd.getName().equalsIgnoreCase("config")) {
-            sender.sendMessage("§7[§9Galactic§7]");
-            sender.sendMessage("§1---------------------");
-            sender.sendMessage("§7[§bEspecificaciones§7]↴");
-            if (Towers) {
-                sender.sendMessage("§6➛Modalidad: §7Towers");
-            } else if (Walls){
-                sender.sendMessage("§6➛Modalidad: §7Walls");
-            } else if (Bingo){
-                sender.sendMessage("§6➛Modalidad: §7Bingo");
-            }
-            if (Captains){
-                sender.sendMessage("§6➛Teams: §7Captains");
-            } else if (InCaptains){
-                sender.sendMessage("§6➛Teams: §7InCaptains");
-            } else if (SlaveMarket){
-                sender.sendMessage("§6➛Teams: §7SlaveMarket");
-            } else if (Rigged) {
-                sender.sendMessage("§6➛Teams: §7Rigged");
-            } else if (Random) {
-                sender.sendMessage("§6➛Teams: §7Random");
-            } else if (Chosen){
-                sender.sendMessage("§6➛Teams: §7Chosen");
-            }
-            if (Comandos.SkyOff){
-                sender.sendMessage("§6➛Sky: §7OFF");
-            } else {
-                sender.sendMessage("§6➛Sky: §7ON");
-            }
-            if (Comandos.UnderOff) {
-                sender.sendMessage("§6➛Under: §7OFF");
-            } else {
-                sender.sendMessage("§6➛Under: §7ON");
-            }
-            if (EnchantsON){
-                sender.sendMessage("§6➛Enchants: §7ON");
-            } else if (EnchantsNerf){
-                sender.sendMessage("§6➛Enchants: §7Nerf");
-            } else if (EnchantsOFF){
-                sender.sendMessage("§6➛Enchants: §7OFF");
-            }
-            sender.sendMessage("§1---------------------");
-            sender.sendMessage("§7[§bScenarios§7]↴");
-            if (Comandos.HasteyBoys) {
-                sender.sendMessage("§6➛HasteyBoys: §7Tus herramientas se encantan con eficiencia 3 y durabilidad 1.");
-            }
-            if (Comandos.CutClean) {
-                sender.sendMessage("§6➛CutClean: §7La comida y los minerales se cocinan automaticamente al dropear.");
-            }
-            if (Comandos.NoFall) {
-                sender.sendMessage("§6➛NoFall: §7No hay daño de caida.");
-            }
-            if (Comandos.Switcheroo) {
-                sender.sendMessage("§6➛Switcheroo: §7Intercambias posiciones con un jugador al pegarle una flecha.");
-            }
-            if (Comandos.SuperHeroes) {
-                sender.sendMessage("§6➛SuperHeroes: §7Al empezar te da un efecto permanente que puede ser Fuerza, Doble Vida, Speed 2, Haste 2, Jump Boost 4, o Resistencia 2.");
-            }
-            return true;
-        } else if (cmd.getName().equalsIgnoreCase("broadcast") && sender.hasPermission("galactic.broadcast")){
+            Comandos.StaffMenu((Player) sender);
+        } else if (cmd.getName().equalsIgnoreCase("broadcast") && sender.hasPermission("galactic.broadcast") || cmd.getName().equalsIgnoreCase("bc") && sender.hasPermission("galactic.broadcast")){
             StringBuilder message = new StringBuilder("");
             for (String part : args) {
                 if (!message.toString().equals(""))
@@ -187,270 +115,123 @@ public class Staff implements CommandExecutor, Listener {
                 message.append(part);
             }
             Bukkit.getServer().broadcastMessage(ChatColor.translateAlternateColorCodes('&', "§7[§9Galactic§7] ➛ §f" + message.toString()));
+        } else if (sender.hasPermission("galactic.jail") && cmd.getName().equalsIgnoreCase("jail")) {
+            if (args.length == 0) {
+                sender.sendMessage("§7Faltaron argumentos!");
+                sender.sendMessage("§7/jail <jugador> <tiempo> <razón>");
+                return true;
+            } else if (args.length == 3) {
+                Player target = Bukkit.getPlayerExact(args[0]);
+                if (target == null) {
+                    sender.sendMessage("§7El jugador no está en linea!");
+                } else {
+                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ El jugador " + ChatColor.YELLOW + target.getName() + " §7ha sido encarcelado por " + args[1] + " minuto/s." + " Razón: §d" + args[2]);
+                    jail.add(target.getUniqueId());
+                    mute.add(target.getUniqueId());
+                    target.teleport(jailzone);
+                    int time = Integer.parseInt(args[1]);
+                    new BukkitRunnable() {
+                        public void run() {
+                            if (!jail.contains(target.getUniqueId())){
+                                cancel();
+                            }
+                            jail.remove(target.getUniqueId());
+                            mute.remove(target.getUniqueId());
+                            target.sendMessage("§7Has sido desencarcelado y desmuteado!");
+                            if (Teams.blueteam.contains(target)) {
+                                target.teleport(Towers.bluespawn);
+                            }
+                            if (Teams.redteam.contains(target)) {
+                                target.teleport(Towers.redspawn);
+                            }
+                        }
+                    }.runTaskLater(plugin, time * 1200);
+                    return true;
+                }
+            } else {
+                sender.sendMessage("§7Faltaron argumentos!");
+                sender.sendMessage("§7/jail <jugador> <tiempo> <razón>");
+                return true;
+            }
+        } else if (sender.hasPermission("galactic.unjail") && cmd.getName().equalsIgnoreCase("unjail")){
+            if (args.length == 1){
+                Player target = Bukkit.getPlayerExact(args[0]);
+                if (!jail.contains(target.getUniqueId())){
+                    sender.sendMessage(ChatColor.YELLOW + target.getName() + " §7no está encarcelado" );
+                } else {
+                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ El jugador " + ChatColor.YELLOW + target.getName() + " §7ha sido desencarcelado");
+                    mute.remove(target.getUniqueId());
+                    jail.remove(target.getUniqueId());
+                    target.sendMessage("§7Has sido desencarcelado y desmuteado!");
+                }
+                return true;
+            } else {
+                sender.sendMessage("§7Argumentos incorrectos!");
+                sender.sendMessage("§7/unjail <jugador>");
+                return true;
+            }
         }
         return false;
     }
-
-    public Inventory staffmenu = Bukkit.createInventory(null, 27, "StaffMenu");
-    public Inventory staffscenarios = Bukkit.createInventory(null, 27, "StaffScenarios");
-    public Inventory staffconfig = Bukkit.createInventory(null, 27, "StaffConfig");
-    public Inventory stafftowers = Bukkit.createInventory(null, 27, "StaffTowers");
-
-    public static boolean Towers = true;
-    public static boolean Walls = false;
-    public static boolean Bingo = false;
-
-    public static boolean Captains = true;
-    public static boolean InCaptains = false;
-    public static boolean Random = false;
-    public static boolean Rigged = false;
-    public static boolean SlaveMarket = false;
-    public static boolean Chosen = false;
-
-    public static boolean EnchantsON = true;
-    public static boolean EnchantsNerf = false;
-    public static boolean EnchantsOFF = false;
-
-    public void StaffMenu(Player p){
-        staffmenu.setItem(11, MenuItems.staffmenuitem1());
-        staffmenu.setItem(15, MenuItems.staffmenuitem2());
-        p.openInventory(staffmenu);
-    }
-
-    public void StaffScen(Player p){
-        staffscenarios.setItem(0, MenuItems.staffscenitem1());
-        staffscenarios.setItem(1, MenuItems.staffscenitem2());
-        staffscenarios.setItem(2, MenuItems.staffscenitem3());
-        staffscenarios.setItem(3, MenuItems.staffscenitem4());
-        staffscenarios.setItem(4, MenuItems.staffscenitem5());
-        p.openInventory(staffscenarios);
-    }
-
-    public void StaffConfig(Player p){
-        staffconfig.setItem(11, MenuItems.staffconfigitem1());
-        staffconfig.setItem(13, MenuItems.staffconfigitem2());
-        staffconfig.setItem(15, MenuItems.staffconfigitem3());
-        p.openInventory(staffconfig);
-    }
-
-    public void StaffTowers(Player p){
-        stafftowers.setItem(12, MenuItems.stafftowersitem1());
-        stafftowers.setItem(13, MenuItems.stafftowersitem2());
-        stafftowers.setItem(14, MenuItems.stafftowersitem3());
-        p.openInventory(stafftowers);
-    }
-
-    @EventHandler
-    public void onClick(InventoryClickEvent event) {
-        Player player = (Player) event.getWhoClicked();
-        ItemStack clicked = event.getCurrentItem();
-        if (event.getView().getTitle().equalsIgnoreCase("StaffMenu")) {
-            if (clicked.getType() == Material.DIAMOND_PICKAXE) {
-                event.setCancelled(true);
-                StaffScen(player);
-            } else if (clicked.getType() == Material.NETHER_STAR) {
-                event.setCancelled(true);
-                StaffConfig(player);
-            }
-        } else if (event.getView().getTitle().equalsIgnoreCase("StaffScenarios")) {
-            if (clicked.getType() == Material.IRON_PICKAXE) {
-                if (!Comandos.HasteyBoys) {
-                    event.setCancelled(true);
-                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §bHasteyBoys §2ON");
-                    StaffScen(player);
-                    Comandos.HasteyBoys = true;
-                } else {
-                    event.setCancelled(true);
-                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §bHasteyBoys §4OFF");
-                    StaffScen(player);
-                    Comandos.HasteyBoys = false;
-                }
-            } else if (clicked.getType() == Material.IRON_INGOT) {
-                if (!Comandos.CutClean) {
-                    event.setCancelled(true);
-                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §eCutClean §2ON");
-                    StaffScen(player);
-                    Comandos.CutClean = true;
-                } else {
-                    event.setCancelled(true);
-                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §eCutClean §4OFF");
-                    StaffScen(player);
-                    Comandos.CutClean = false;
-                }
-            } else if (clicked.getType() == Material.DIAMOND_BOOTS) {
-                if (!Comandos.NoFall) {
-                    event.setCancelled(true);
-                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §fNoFall §2ON");
-                    StaffScen(player);
-                    Comandos.NoFall = true;
-                } else {
-                    event.setCancelled(true);
-                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §fNoFall §4OFF");
-                    StaffScen(player);
-                    Comandos.NoFall = false;
-                }
-            } else if (clicked.getType() == Material.ARROW) {
-                if (!Comandos.Switcheroo) {
-                    event.setCancelled(true);
-                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §aSwitcheroo §2ON");
-                    StaffScen(player);
-                    Comandos.Switcheroo = true;
-                } else {
-                    event.setCancelled(true);
-                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §aSwitcheroo §4OFF");
-                    StaffScen(player);
-                    Comandos.Switcheroo = false;
-                }
-            } else if (clicked.getType() == Material.BEACON) {
-                if (!Comandos.SuperHeroes) {
-                    event.setCancelled(true);
-                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §6SuperHeroes §2ON");
-                    StaffScen(player);
-                    Comandos.SuperHeroes = true;
-                } else {
-                    event.setCancelled(true);
-                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §6SuperHeroes §4OFF");
-                    StaffScen(player);
-                    Comandos.SuperHeroes = false;
-                }
-            }
-        } else if (event.getView().getTitle().equalsIgnoreCase("StaffConfig")) {
-            if (clicked.getType() == Material.BOW) {
-                if (Towers) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Modalidad actual: §6Walls");
-                    Towers = false;
-                    Walls = true;
-                    StaffConfig(player);
-                } else if (Walls) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Modalidad actual: §6Bingo");
-                    Walls = false;
-                    Bingo = true;
-                    StaffConfig(player);
-                } else if (Bingo) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Modalidad actual: §6Towers");
-                    Bingo = false;
-                    Towers = true;
-                    StaffConfig(player);
-                } else {
-                    event.setCancelled(true);
-                }
-            } else if (clicked.getType() == Material.REDSTONE_COMPARATOR) {
-                if (Towers) {
-                    event.setCancelled(true);
-                    StaffTowers(player);
-                } else if (Walls) {
-                    event.setCancelled(true);
-                } else if (Bingo) {
-                    event.setCancelled(true);
-                }
-            } else if (clicked.getType() == Material.TOTEM) {
-                if (Captains) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Teams actuales: §6InCaptains");
-                    Captains = false;
-                    InCaptains = true;
-                    StaffConfig(player);
-                } else if (InCaptains) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Teams actuales: §6SlaveMarket");
-                    InCaptains = false;
-                    SlaveMarket = true;
-                    StaffConfig(player);
-                } else
-                if (SlaveMarket) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Teams actuales: §6Rigged");
-                    SlaveMarket = false;
-                    Rigged = true;
-                    StaffConfig(player);
-                } else
-                if (Rigged) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Teams actuales: §6Random");
-                    Rigged = false;
-                    Random = true;
-                    StaffConfig(player);
-                } else
-                if (Random) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Teams actuales: §6Chosen");
-                    Random = false;
-                    Chosen = true;
-                    StaffConfig(player);
-                } else
-                if (Chosen) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Teams actuales: §6Captains");
-                    Chosen = false;
-                    Captains = true;
-                    StaffConfig(player);
-                }
-            }
-        } else if (event.getView().getTitle().equalsIgnoreCase("StaffTowers")) {
-            if (clicked.getType() == Material.FEATHER) {
-                if (Comandos.SkyOff) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Activado el Sky");
-                    Comandos.SkyOff = false;
-                    StaffTowers(player);
-                } else {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Desactivado el Sky");
-                    Comandos.SkyOff = true;
-                    StaffTowers(player);
-                }
-            } else if (clicked.getType() == Material.ENCHANTMENT_TABLE) {
-                if (EnchantsON) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Enchants Nerf");
-                    EnchantsON = false;
-                    EnchantsNerf = true;
-                    StaffTowers(player);
-                } else if (EnchantsNerf) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Enchants OFF");
-                    EnchantsNerf = false;
-                    EnchantsOFF = true;
-                    StaffTowers(player);
-                } else if (EnchantsOFF) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Enchants ON");
-                    EnchantsOFF = false;
-                    EnchantsON = true;
-                    StaffTowers(player);
-                } else {
-                    event.setCancelled(true);
-                }
-            } else if (clicked.getType() == Material.NETHER_BRICK) {
-                if (Comandos.UnderOff) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Activado el Under");
-                    Comandos.UnderOff = false;
-                    StaffTowers(player);
-                } else {
-                    event.setCancelled(true);
-                    player.sendMessage("§7Desactivado el Under");
-                    Comandos.UnderOff = true;
-                    StaffTowers(player);
-                }
-            }
-        }
-    }
-
 
     @EventHandler
     public void onMessage(PlayerChatEvent event) {
         Player player = event.getPlayer();
         if (mute.contains(player.getUniqueId())) {
-            event.setCancelled(true);
-            player.sendMessage("§7Estas mute!");
+            if (Teams.globalchat.contains(player)) {
+                event.setCancelled(true);
+                player.sendMessage("§7Estas mute!");
+            }
         }
         if (MuteAll){
-            event.setCancelled(true);
-            player.sendMessage("§7El chat esta mute!");
+            if (!Teams.globalchat.contains(player)) {
+                event.setCancelled(true);
+                player.sendMessage("§7El chat esta mute!");
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBreak (BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlock();
+        Location j = new Location(player.getWorld(), -3, 0, 1196);
+        Location j2 = new Location(player.getWorld(), 3, 213, 1202);
+        int x1 = Math.min(j.getBlockX(), j2.getBlockX());
+        int x2 = Math.max(j.getBlockX(), j2.getBlockX());
+        int y1 = Math.min(j.getBlockY(), j2.getBlockY());
+        int y2 = Math.max(j.getBlockY(), j2.getBlockY());
+        int z1 = Math.min(j.getBlockZ(), j2.getBlockZ());
+        int z2 = Math.max(j.getBlockZ(), j2.getBlockZ());
+        if (block.getX() >= x1 && block.getX() <= x2) {
+            if (block.getY() >= y1 && block.getY() <= y2) {
+                if (block.getZ() >= z1 && block.getZ() <= z2) {
+                    event.setCancelled(true);
+                    player.sendMessage("§7No puedes romper bloques en esta zona!");
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlace (BlockPlaceEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlock();
+        Location j = new Location(player.getWorld(), -3, 0, 1196);
+        Location j2 = new Location(player.getWorld(), 3, 213, 1202);
+        int x1 = Math.min(j.getBlockX(), j2.getBlockX());
+        int x2 = Math.max(j.getBlockX(), j2.getBlockX());
+        int y1 = Math.min(j.getBlockY(), j2.getBlockY());
+        int y2 = Math.max(j.getBlockY(), j2.getBlockY());
+        int z1 = Math.min(j.getBlockZ(), j2.getBlockZ());
+        int z2 = Math.max(j.getBlockZ(), j2.getBlockZ());
+        if (block.getX() >= x1 && block.getX() <= x2) {
+            if (block.getY() >= y1 && block.getY() <= y2) {
+                if (block.getZ() >= z1 && block.getZ() <= z2) {
+                    event.setCancelled(true);
+                    player.sendMessage("§7No puedes poner bloques en esta zona!");
+                }
+            }
         }
     }
 }

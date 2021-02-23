@@ -102,25 +102,38 @@ public class MenuItems {
         return ssi5;
     }
 
+    public static ItemStack staffscenitem6(){
+        ItemStack ssi6 = new ItemStack(Material.BOW);
+        ItemMeta ssi6meta = ssi6.getItemMeta();
+        ssi6meta.setDisplayName("§6Bowless");
+        ssi6meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        ssi6meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        ssi6meta.setLore(Arrays.asList(
+                "§7Activa/desactiva Bowless"
+        ));
+        ssi6.setItemMeta(ssi6meta);
+        return ssi6;
+    }
+
     public static ItemStack staffconfigitem1(){
         ItemStack sci1 = new ItemStack(Material.BOW);
         ItemMeta sci1meta = sci1.getItemMeta();
         sci1meta.setDisplayName("§6Modalidad");
         sci1meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         sci1meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        if (Staff.Towers) {
+        if (Comandos.Towers) {
             sci1meta.setLore(Arrays.asList(
                     "§7Cambia entre la modalidad",
                     "§7Modalidad actual: §6Towers"
             ));
         }
-        if (Staff.Walls) {
+        if (Comandos.Walls) {
             sci1meta.setLore(Arrays.asList(
                     "§7Cambia entre la modalidad",
                     "§7Modalidad actual: §6Walls"
             ));
         }
-        if (Staff.Bingo) {
+        if (Comandos.Bingo) {
             sci1meta.setLore(Arrays.asList(
                     "§7Cambia entre la modalidad",
                     "§7Modalidad actual: §6Bingo"
@@ -136,17 +149,17 @@ public class MenuItems {
         sci2meta.setDisplayName("§6Config");
         sci2meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         sci2meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        if (Staff.Towers) {
+        if (Comandos.Towers) {
             sci2meta.setLore(Arrays.asList(
                     "§7Abre la config de la modalidad elegida",
                     "§7Modalidad actual: §6Towers"
             ));
-        } else if (Staff.Walls) {
+        } else if (Comandos.Walls) {
             sci2meta.setLore(Arrays.asList(
                     "§7Abre la config de la modalidad elegida",
                     "§7Modalidad actual: §6Walls"
             ));
-        } else if (Staff.Bingo) {
+        } else if (Comandos.Bingo) {
             sci2meta.setLore(Arrays.asList(
                     "§7Abre la config de la modalidad elegida",
                     "§7Modalidad actual: §6Bingo"
@@ -162,37 +175,37 @@ public class MenuItems {
         sci3meta.setDisplayName("§6Teams");
         sci3meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         sci3meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        if (Staff.Captains) {
+        if (Comandos.Captains) {
             sci3meta.setLore(Arrays.asList(
                     "§7Cambia entre el tipo de teams",
                     "§7Teams actuales: §6Captains"
             ));
         }
-        if (Staff.SlaveMarket) {
+        if (Comandos.SlaveMarket) {
             sci3meta.setLore(Arrays.asList(
                     "§7Cambia entre el tipo de teams",
                     "§7Teams actuales: §6SlaveMarket"
             ));
         }
-        if (Staff.Random) {
+        if (Comandos.Random) {
             sci3meta.setLore(Arrays.asList(
                     "§7Cambia entre el tipo de teams",
                     "§7Teams actuales: §6Random"
             ));
         }
-        if (Staff.Rigged) {
+        if (Comandos.Rigged) {
             sci3meta.setLore(Arrays.asList(
                     "§7Cambia entre el tipo de teams",
                     "§7Teams actuales: §6Rigged"
             ));
         }
-        if (Staff.Chosen) {
+        if (Comandos.Chosen) {
             sci3meta.setLore(Arrays.asList(
                     "§7Cambia entre el tipo de teams",
                     "§7Teams actuales: §6Chosen"
             ));
         }
-        if (Staff.InCaptains) {
+        if (Comandos.InCaptains) {
             sci3meta.setLore(Arrays.asList(
                     "§7Cambia entre el tipo de teams",
                     "§7Teams actuales: §6InCaptains"
@@ -229,17 +242,17 @@ public class MenuItems {
         sti2meta.setDisplayName("§dEnchants");
         sti2meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         sti2meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        if (Staff.EnchantsON){
+        if (Comandos.EnchantsON){
             sti2meta.setLore(Arrays.asList(
                     "§7Activa/desactiva/nerfea los Enchants",
                     "§7Actual: §2ON"
             ));
-        } else if (Staff.EnchantsNerf){
+        } else if (Comandos.EnchantsNerf){
             sti2meta.setLore(Arrays.asList(
                     "§7Activa/desactiva/nerfea los Enchants",
                     "§7Actual: §fNerf"
             ));
-        } else if (Staff.EnchantsOFF){
+        } else if (Comandos.EnchantsOFF){
             sti2meta.setLore(Arrays.asList(
                     "§7Activa/desactiva/nerfea los Enchants",
                     "§7Actual: §4OFF"

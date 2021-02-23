@@ -11,10 +11,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -136,55 +139,112 @@ public class Scenarios implements Listener {
     }
 
     @EventHandler
-    public void a(InventoryClickEvent event) {
+    public void BowlessScen(EntityShootBowEvent event){
+        if (Comandos.Bowless) {
+            if (event.getEntity() instanceof Player) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void BowlessScen2 (InventoryClickEvent event){
+        Player player = (Player) event.getWhoClicked();
+        ItemStack clicked = event.getCurrentItem();
+        if (Comandos.Bowless) {
+            if (clicked.getType() == Material.BOW) {
+                event.getInventory().removeItem(clicked);
+            }
+        }
+    }
+
+    @EventHandler
+    public void EnchantslessScen (BlockPlaceEvent event){
+        Block block = event.getBlock();
+        if (Comandos.EnchantsNerf) {
+            if (block.getType() == Material.BOOKSHELF){
+                event.setCancelled(true);
+            }
+        }
+        if (Comandos.EnchantsOFF){
+            if (block.getType() == Material.BOOKSHELF || block.getType() == Material.ENCHANTMENT_TABLE){
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void EnchantslessScen2 (EnchantItemEvent event){
+        if (Comandos.EnchantsOFF){
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void HasteyBoysScen(InventoryClickEvent event) {
         ItemStack clicked = event.getCurrentItem();
         if (Comandos.HasteyBoys) {
             if (clicked.getType() == Material.WOOD_PICKAXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.STONE_PICKAXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.STONE_PICKAXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.IRON_PICKAXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.IRON_PICKAXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.GOLD_PICKAXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.GOLD_PICKAXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.DIAMOND_PICKAXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.DIAMOND_PICKAXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.WOOD_AXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.WOOD_AXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.STONE_AXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.STONE_AXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.IRON_AXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.IRON_AXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.GOLD_AXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.GOLD_AXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.DIAMOND_AXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.DIAMOND_AXE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.WOOD_SPADE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.WOOD_SPADE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.STONE_SPADE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.STONE_SPADE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.IRON_SPADE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.IRON_SPADE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.GOLD_SPADE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.GOLD_SPADE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.DIAMOND_SPADE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.DIAMOND_SPADE && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
-            } else if (clicked.getType() == Material.SHEARS && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
+            }
+            if (clicked.getType() == Material.SHEARS && !clicked.containsEnchantment(Enchantment.DIG_SPEED)) {
                 clicked.addEnchantment(Enchantment.DIG_SPEED, 3);
                 clicked.addEnchantment(Enchantment.DURABILITY, 1);
             }

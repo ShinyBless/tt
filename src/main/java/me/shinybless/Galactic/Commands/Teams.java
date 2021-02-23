@@ -2,14 +2,19 @@ package me.shinybless.Galactic.Commands;
 
 import me.shinybless.Galactic.Eventos;
 import me.shinybless.Galactic.Main;
+import me.shinybless.Galactic.Scenarios;
+import me.shinybless.Galactic.Towers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.ArrayList;
@@ -26,11 +31,14 @@ public class Teams implements Listener, CommandExecutor {
         plugin.getCommand("tc").setExecutor(this);
         plugin.getCommand("staffchat").setExecutor(this);
         plugin.getCommand("sc").setExecutor(this);
+        plugin.getCommand("captains").setExecutor(this);
         plugin.getCommand("choose").setExecutor(this);
     }
 
     public static ArrayList<Player> redteam = new ArrayList<>();
     public static ArrayList<Player> blueteam = new ArrayList<>();
+    public static ArrayList<Player> greenteam = new ArrayList<>();
+    public static ArrayList<Player> yellowteam = new ArrayList<>();
 
     public static ArrayList<Player> redcaptain = new ArrayList<>();
     public static ArrayList<Player> bluecaptain = new ArrayList<>();
@@ -39,13 +47,17 @@ public class Teams implements Listener, CommandExecutor {
     public static ArrayList<Player> teamchat = new ArrayList<>();
     public static ArrayList<Player> staffchat = new ArrayList<>();
 
+    Location spawn = new Location(Bukkit.getWorld("world"), 0.4, 64, 1024.4);
+    Location redcage = new Location(Bukkit.getWorld("world"), 12.5, 65, 1024.5);
+    Location bluecage = new Location(Bukkit.getWorld("world"), -11.5, 65, 1024.5);
+
     public static boolean CaptainsStart = false;
+    public static boolean RedCaptain = true;
+    public static boolean BlueCaptain = false;
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (sender.hasPermission("Galactic.towers") && cmd.getName().equalsIgnoreCase("start")) {
-
-        } else if (sender.hasPermission("Galactic.team") && cmd.getName().equalsIgnoreCase("team")) {
+        if (sender.hasPermission("Galactic.team") && cmd.getName().equalsIgnoreCase("team")) {
             if (args.length < 2) {
                 sender.sendMessage("§7Faltaron argumentos!");
                 sender.sendMessage("§7/team red/blue join/leave <jugador>");
@@ -66,7 +78,21 @@ public class Teams implements Listener, CommandExecutor {
                             redteam.add(target);
                             target.sendMessage("§7Ahora estás en el equipo §cRojo");
                             sender.sendMessage("§e" + target.getName() + " §7ahora forma parte del equipo §cRojo");
-                            target.setPlayerListName("§c" + target.getName());
+                            if (Comandos.Bingo) {
+                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join red " + target.getName());
+                            } else {
+                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Red " + target.getName());
+                            }
+                            if (Comandos.Towers) {
+                                if (Towers.TowersStart) {
+                                    Towers.GameStart(target);
+                                    if (Comandos.SuperHeroes) {
+                                        Towers.StartSuperHeroes(target);
+                                    }
+                                } else {
+                                    target.teleport(redcage);
+                                }
+                            }
                             return true;
                         }
                     } else if (args[1].equalsIgnoreCase("leave")) {
@@ -78,7 +104,14 @@ public class Teams implements Listener, CommandExecutor {
                             redteam.remove(target);
                             target.sendMessage("§7Ya no estás en el equipo §cRojo");
                             sender.sendMessage("§e" + target.getName() + " §7ya no forma parte del equipo §cRojo");
-                            target.setPlayerListName("§f" + target.getName());
+                            Bukkit.getServer().dispatchCommand(sender, "scoreboard teams leave " + target.getName());
+                            target.teleport(spawn);
+                            Scenarios.resistance.remove(target.getName());
+                            Scenarios.health.remove(target.getName());
+                            Scenarios.strength.remove(target.getName());
+                            Scenarios.speed.remove(target.getName());
+                            Scenarios.haste.remove(target.getName());
+                            Scenarios.jump.remove(target.getName());
                             return true;
                         }
                     } else {
@@ -88,13 +121,29 @@ public class Teams implements Listener, CommandExecutor {
                     }
                 } else if (args[0].equalsIgnoreCase("blue")) {
                     if (args[1].equalsIgnoreCase("join")) {
-                        if (redteam.contains(target)) {
-                            sender.sendMessage("§e" + target.getName() + "§7 ya forma parte de un equipo!");
+                        if (blueteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 ya forma parte del equipo §9Azul!");
+                        } else if (redteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 ya forma parte del equipo §cRojo!");
                         } else {
                             blueteam.add(target);
                             target.sendMessage("§7Ahora estás en el equipo §9Azul");
                             sender.sendMessage("§e" + target.getName() + " §7ahora forma parte del equipo §9Azul");
-                            target.setPlayerListName("§9" + target.getName());
+                            if (Comandos.Bingo) {
+                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join blue " + target.getName());
+                            } else {
+                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Blue " + target.getName());
+                            }
+                            if (Comandos.Towers) {
+                                if (Towers.TowersStart) {
+                                    if (Comandos.SuperHeroes) {
+                                        Towers.StartSuperHeroes(target);
+                                    }
+                                    Towers.GameStart(target);
+                                } else {
+                                    target.teleport(bluecage);
+                                }
+                            }
                             return true;
                         }
                     } else if (args[1].equalsIgnoreCase("leave")) {
@@ -104,8 +153,120 @@ public class Teams implements Listener, CommandExecutor {
                             blueteam.remove(target);
                             target.sendMessage("§7Ya no estás en el equipo §9Azul");
                             sender.sendMessage("§e" + target.getName() + " §7ya no forma parte del equipo §9Azul");
-                            target.setPlayerListName("§f" + target.getName());
-
+                            Bukkit.getServer().dispatchCommand(sender, "scoreboard teams leave " + target.getName());
+                            target.teleport(spawn);
+                            Scenarios.resistance.remove(target.getName());
+                            Scenarios.health.remove(target.getName());
+                            Scenarios.strength.remove(target.getName());
+                            Scenarios.speed.remove(target.getName());
+                            Scenarios.haste.remove(target.getName());
+                            Scenarios.jump.remove(target.getName());
+                            return true;
+                        }
+                    } else {
+                        sender.sendMessage("§7Argumento incorrecto!");
+                        sender.sendMessage("§7/team red/blue join/leave <jugador>");
+                        return true;
+                    }
+                } else if (args[0].equalsIgnoreCase("green")) {
+                    if (args[1].equalsIgnoreCase("join")) {
+                        if (blueteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 ya forma parte del equipo §9Azul!");
+                        } else if (redteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 ya forma parte del equipo §cRojo!");
+                        } else if (greenteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 ya forma parte del equipo §aVerde!");
+                        } else if (yellowteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 ya forma parte del equipo §eAmarillo!");
+                        } else {
+                            greenteam.add(target);
+                            target.sendMessage("§7Ahora estás en el equipo §aVerde");
+                            sender.sendMessage("§e" + target.getName() + " §7ahora forma parte del equipo §aVerde");
+                            if (Comandos.Bingo) {
+                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join greem " + target.getName());
+                            } else {
+                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Greem " + target.getName());
+                            }
+                            if (Comandos.Towers) {
+                                if (Towers.TowersStart) {
+                                    if (Comandos.SuperHeroes) {
+                                        Towers.StartSuperHeroes(target);
+                                    }
+                                    Towers.GameStart(target);
+                                } else {
+                                    target.teleport(bluecage);
+                                }
+                            }
+                            return true;
+                        }
+                    } else if (args[1].equalsIgnoreCase("leave")) {
+                        if (!greenteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 no esta en el equipo §aVerde!");
+                        } else {
+                            greenteam.remove(target);
+                            target.sendMessage("§7Ya no estás en el equipo §aVerde");
+                            sender.sendMessage("§e" + target.getName() + " §7ya no forma parte del equipo §aVerde");
+                            Bukkit.getServer().dispatchCommand(sender, "scoreboard teams leave " + target.getName());
+                            target.teleport(spawn);
+                            Scenarios.resistance.remove(target.getName());
+                            Scenarios.health.remove(target.getName());
+                            Scenarios.strength.remove(target.getName());
+                            Scenarios.speed.remove(target.getName());
+                            Scenarios.haste.remove(target.getName());
+                            Scenarios.jump.remove(target.getName());
+                            return true;
+                        }
+                    } else {
+                        sender.sendMessage("§7Argumento incorrecto!");
+                        sender.sendMessage("§7/team red/blue join/leave <jugador>");
+                        return true;
+                    }
+                } else if (args[0].equalsIgnoreCase("yellow")) {
+                    if (args[1].equalsIgnoreCase("join")) {
+                        if (blueteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 ya forma parte del equipo §9Azul!");
+                        } else if (redteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 ya forma parte del equipo §cRojo!");
+                        } else if (greenteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 ya forma parte del equipo §aVerde!");
+                        } else if (yellowteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 ya forma parte del equipo §eAmarillo!");
+                        } else {
+                            yellowteam.add(target);
+                            target.sendMessage("§7Ahora estás en el equipo §eAmarillo");
+                            sender.sendMessage("§e" + target.getName() + " §7ahora forma parte del equipo §eAmarillo");
+                            if (Comandos.Bingo) {
+                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join yellow " + target.getName());
+                            } else {
+                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Yellow " + target.getName());
+                            }
+                            if (Comandos.Towers) {
+                                if (Towers.TowersStart) {
+                                    if (Comandos.SuperHeroes) {
+                                        Towers.StartSuperHeroes(target);
+                                    }
+                                    Towers.GameStart(target);
+                                } else {
+                                    target.teleport(bluecage);
+                                }
+                            }
+                            return true;
+                        }
+                    } else if (args[1].equalsIgnoreCase("leave")) {
+                        if (!yellowteam.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + "§7 no esta en el equipo §eAmarillo!");
+                        } else {
+                            yellowteam.remove(target);
+                            target.sendMessage("§7Ya no estás en el equipo §eAmarillo");
+                            sender.sendMessage("§e" + target.getName() + " §7ya no forma parte del equipo §eAmarillo");
+                            Bukkit.getServer().dispatchCommand(sender, "scoreboard teams leave " + target.getName());
+                            target.teleport(spawn);
+                            Scenarios.resistance.remove(target.getName());
+                            Scenarios.health.remove(target.getName());
+                            Scenarios.strength.remove(target.getName());
+                            Scenarios.speed.remove(target.getName());
+                            Scenarios.haste.remove(target.getName());
+                            Scenarios.jump.remove(target.getName());
                             return true;
                         }
                     } else {
@@ -119,6 +280,79 @@ public class Teams implements Listener, CommandExecutor {
                     return true;
                 }
             }
+        } else if (sender.hasPermission("galactic.captains") && cmd.getName().equalsIgnoreCase("captains")){
+            if (args.length < 2){
+                sender.sendMessage("§7Faltaron argumentos!");
+                sender.sendMessage("§7Elegir captains: /captains add/remove blue/red <jugador>!");
+                sender.sendMessage("§7Empezar los captains: /captains start!");
+            } else {
+                if (args[0].equalsIgnoreCase("start")) {
+                    if (!Teams.redcaptain.isEmpty()) {
+                        if (!Teams.bluecaptain.isEmpty()) {
+                            CaptainsStart = true;
+                            Bukkit.broadcastMessage("§7[§6Captains§7]➛ Turno de §e" + Teams.redcaptain.get(0) + " §7 para elegir!");
+                            Teams.redcaptain.get(0).sendMessage("§7Elige un jugador usando /choose <jugador> ");
+                        } else {
+                            sender.sendMessage("§7No se puede empezar al no haber un Captain del equipo Azul");
+                        }
+                    } else {
+                        sender.sendMessage("§7No se puede empezar al no haber un Captain del equipo Rojo");
+                    }
+                } else if (args[0].equalsIgnoreCase("stop")) {
+                    if (CaptainsStart) {
+                        CaptainsStart = false;
+                        Bukkit.broadcastMessage("§7[§6Captains§7]➛ Ha finalizado la selección de Captains!");
+                    } else {
+                        sender.sendMessage("§7La selección de Captains no ha comenzado!");
+                    }
+                } else if (args[0].equalsIgnoreCase("add")) {
+                    Player target = Bukkit.getPlayerExact(args[2]);
+                    if (args[1].equalsIgnoreCase("blue")) {
+                        if (!bluecaptain.isEmpty()) {
+                            sender.sendMessage("§7El equipo §9Azul §7ya tiene a §e" + bluecaptain.get(0) + " §7como Captain!");
+                        } else {
+                            bluecaptain.add(target);
+                            Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Blue " + target.getName());
+                            sender.sendMessage("§e" + target.getName() + " §7ahora es el Captain del equipo §9Azul§7!");
+                            target.sendMessage("§7Ahora eres el Captain del equipo §9Azul");
+                        }
+                    } else if (args[1].equalsIgnoreCase("red")) {
+                        if (!redcaptain.isEmpty()) {
+                            sender.sendMessage("§7El equipo §cRojo §7ya tiene a §e" + redcaptain.get(0) + " §7como Captain!");
+                        } else {
+                            redcaptain.add(target);
+                            Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Red " + target.getName());
+                            sender.sendMessage("§e" + target.getName() + " §7ahora es el Captain del equipo §cRojo§7!");
+                            target.sendMessage("§7Ahora eres el Captain del equipo §cRojo");
+                        }
+                    }
+                } else if (args[0].equalsIgnoreCase("remove")){
+                    Player target = Bukkit.getPlayerExact(args[2]);
+                    if (args[1].equalsIgnoreCase("blue")) {
+                        if (!bluecaptain.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + " §7no es el Captain del equipo §9Azul §7!");
+                        } else {
+                            bluecaptain.remove(target);
+                            Bukkit.getServer().dispatchCommand(sender, "scoreboard teams leave " + target.getName());
+                            sender.sendMessage("§e" + target.getName() + " §7ya no es el Captain del equipo §9Azul§7!");
+                            target.sendMessage("§7Dejaste de ser el Captain del equipo §9Azul");
+                        }
+                    } else if (args[1].equalsIgnoreCase("red")) {
+                        if (!redcaptain.contains(target)) {
+                            sender.sendMessage("§e" + target.getName() + " §7no es el Captain del equipo §9Azul §7!");
+                        } else {
+                            redcaptain.add(target);
+                            Bukkit.getServer().dispatchCommand(sender, "scoreboard teams leave " + target.getName());
+                            sender.sendMessage("§e" + target.getName() + " §7ya no es el Captain del equipo §cRojo§7!");
+                            target.sendMessage("§7Dejaste de ser el Captain del equipo §cRojo");
+                        }
+                    } else {
+                        sender.sendMessage("§7Argumento incorrecto!" + "§7Empezar o frenar los captains: /captains start/stop" + "§7Elegir captains: /captains add/remove blue/red <jugador>");
+                    }
+                } else {
+                    sender.sendMessage("§7Argumento incorrecto!" + "§7Empezar o frenar los captains: /captains start/stop" + "§7Elegir captains: /captains add/remove blue/red <jugador>");
+                }
+            }
         } else if (cmd.getName().equalsIgnoreCase("captains.choose")) {
             if (args.length == 0) {
                 sender.sendMessage("§7Faltaron argumentos!");
@@ -126,13 +360,15 @@ public class Teams implements Listener, CommandExecutor {
             } else {
                 Player target = Bukkit.getPlayer(args[0]);
                 if (CaptainsStart) {
-                    if (Staff.RedCaptain) {
+                    if (RedCaptain) {
                         if (redcaptain.contains(sender)) {
                             if (Bukkit.getOnlinePlayers().contains(target) && target != sender && !blueteam.contains(target) && !redteam.contains(target)) {
                                 redteam.add(target);
+                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Red " + target.getName());
                                 target.sendMessage("§7Ahora estas en el equipo §cRojo");
-                                Staff.RedCaptain = false;
-                                Staff.BlueCaptain = true;
+                                RedCaptain = false;
+                                BlueCaptain = true;
+                                Bukkit.broadcastMessage("§7[§6Captains§7]➛ §c" + redcaptain.get(0) + " §7ha elegido a §e " + target.getName());
                                 Bukkit.broadcastMessage("§7[§6Captains§7]➛ Turno de §9" + bluecaptain.get(0) + " §7de elegir");
                                 bluecaptain.get(0).sendMessage("§7Elige un jugador usando /choose <jugador>");
                             } else {
@@ -141,13 +377,15 @@ public class Teams implements Listener, CommandExecutor {
                         } else {
                             sender.sendMessage("§7Solo los captains pueden usar este comando!");
                         }
-                    } else if (Staff.BlueCaptain) {
+                    } else if (BlueCaptain) {
                         if (bluecaptain.contains(sender)) {
                             if (Bukkit.getOnlinePlayers().contains(target) && target != sender && !redteam.contains(target) && !blueteam.contains(target)) {
                                 blueteam.add(target);
+                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Blue " + target.getName());
                                 target.sendMessage("§7Ahora estas en el equipo §9Azul");
-                                Staff.BlueCaptain = false;
-                                Staff.RedCaptain = true;
+                                BlueCaptain = false;
+                                RedCaptain = true;
+                                Bukkit.broadcastMessage("§7[§6Captains§7]➛ §9" + bluecaptain.get(0) + " §7ha elegido a §e " + target.getName());
                                 Bukkit.broadcastMessage("§7[§6Captains§7]➛ Turno de §c" + redcaptain.get(0) + " §7de elegir");
                                 redcaptain.get(0).sendMessage("§7Elige un jugador usando /choose <jugador>");
                             } else {
@@ -206,6 +444,13 @@ public class Teams implements Listener, CommandExecutor {
             player.sendMessage("§cNo puedes escribir &k!");
             return;
         }
+        if (globalchat.contains(player)){
+            for (Player p : Bukkit.getOnlinePlayers()){
+                if (message.contains(p.getName())){
+                    p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 10, 1);
+                }
+            }
+        }
         if (globalchat.contains(player)) {
             if (teamchat.contains(player)) {
                 if (staffchat.contains(player)) {
@@ -220,6 +465,14 @@ public class Teams implements Listener, CommandExecutor {
                     event.setFormat(teamprefix + "§c" + player.getName() + " §8➩ §b" + message);
                     event.getRecipients().clear();
                     event.getRecipients().addAll(redteam);
+                } else if (greenteam.contains(player)) {
+                    event.setFormat(teamprefix + "§a" + player.getName() + " §8➩ §b" + message);
+                    event.getRecipients().clear();
+                    event.getRecipients().addAll(greenteam);
+                } else if (yellowteam.contains(player)) {
+                    event.setFormat(teamprefix + "§e" + player.getName() + " §8➩ §b" + message);
+                    event.getRecipients().clear();
+                    event.getRecipients().addAll(yellowteam);
                 } else {
                     if (player.hasPermission("galactic.prefix.owner")) {
                         event.setFormat("§bOwner §7" + player.getName() + " §8➩ §f" + ChatColor.translateAlternateColorCodes('&', message));
