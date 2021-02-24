@@ -15,11 +15,20 @@ public class ScoreBoard implements Listener{
 
     public static void update(FastBoard board){
 
-        board.updateLines("",
-                "§cRed §0➩ §f" + Towers.score.get("RedTeam"),
-                "",
-                "§9Blue §0➩ §f" + Towers.score.get("BlueTeam"),
-                "",
-                "§6Time §0➩ §f" + Towers.timer);
+        if (Towers.TowersStart) {
+            board.updateLines("",
+                    "§cRed §0➩ §f" + Towers.score.get("RedTeam"),
+                    "",
+                    "§9Blue §0➩ §f" + Towers.score.get("BlueTeam"),
+                    "",
+                    "§6Time §0➩ §f" + Towers.timer);
+        }else{
+            board.updateLines("",
+                    "§cRed §0➩ §f" + Towers.score.get("RedTeam"),
+                    "",
+                    "§9Blue §0➩ §f" + Towers.score.get("BlueTeam"),
+                    "",
+                    "§6Time §0➩ §f" + Towers.congelTimer);
+        }
     }
 }

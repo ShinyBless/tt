@@ -34,7 +34,7 @@ public final class Main extends JavaPlugin {
             for (FastBoard board : boards.values()) {
                 ScoreBoard.update(board);
             }
-        }, 0L, 5L);
+        }, 0L, 1L);
     }
 
     @Override

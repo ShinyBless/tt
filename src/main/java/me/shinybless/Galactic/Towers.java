@@ -33,9 +33,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.awt.*;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
 
 public class Towers implements Listener, CommandExecutor {
@@ -49,7 +47,7 @@ public class Towers implements Listener, CommandExecutor {
         plugin.getCommand("droplapis").setExecutor(this);
     }
 
-    public static boolean stopTimer = false;
+    public static Boolean CongelTimer = Boolean.FALSE;
     public static boolean TowersStart = false;
 
     public static boolean TimedRespawn = false;
@@ -61,6 +59,7 @@ public class Towers implements Listener, CommandExecutor {
     public static Location bluespawn = new Location(Bukkit.getWorld("world"), -83, 192, 1152);
 
     public static String timer;
+    public static String congelTimer;
 
     public static HashMap<String, Integer> score = new HashMap<>();
     public static HashMap<String, Integer> points = new HashMap<>();
@@ -85,7 +84,9 @@ public class Towers implements Listener, CommandExecutor {
                                 for (Player p : Bukkit.getOnlinePlayers()) {
                                     GameStart(p);
                                     time();
-                                    StartSuperHeroes(p);
+                                    if (Comandos.SuperHeroes) {
+                                        StartSuperHeroes(p);
+                                    }
                                 }
                                 Staff.MuteAll = false;
                                 Bukkit.broadcastMessage("§7[§9Galactic§7]➛ El chat ha sido desmuteado");
@@ -172,40 +173,50 @@ public class Towers implements Listener, CommandExecutor {
     public void Stats () {
         List<Integer> killtop = new LinkedList<>(kills.values());
         Collections.sort(killtop);
-        Collections.reverse(killtop);
-        for (Player p : Bukkit.getOnlinePlayers()) {
+        Collections.reverse(killtop); //Ordenarlo
+        Iterator<Map.Entry<String, Integer>> Kills = kills.entrySet().iterator();
+
+        if (score.get("BlueTeam") == 10) {
+            Bukkit.broadcastMessage("§1-----------------------");
+        } else if (score.get("RedTeam") == 10) {
+            Bukkit.broadcastMessage("§4-----------------------");
+        }
+        Bukkit.broadcastMessage("            §6Ganador");
+        if (score.get("BlueTeam") == 10) {
+            Bukkit.broadcastMessage("          §7Equipo §9Azul");
+        } else if (score.get("RedTeam") == 10) {
+            Bukkit.broadcastMessage("          §7Equipo §cRojo");
+        }
+        Bukkit.broadcastMessage("           §7Top Kills");
+
+        while(Kills.hasNext()) {
+
+            Map.Entry<String, Integer> entry = Kills.next();
+
+            if (entry.getValue() == killtop.get(0)) {
+                String kt1 = entry.getKey();
+                Bukkit.broadcastMessage("       §61- §7" + kt1 + " §8⇨ §f" + killtop.get(0));
+            }
+            if (entry.getValue() == killtop.get(1)) {
+                String kt2 = entry.getKey();
+                Bukkit.broadcastMessage("       §62- §7" + kt2 + " §8⇨ §f" + killtop.get(1));
+            }
+            if (entry.getValue() == killtop.get(2)) {
+                String kt3 = entry.getKey();
+                Bukkit.broadcastMessage("       §63- §7" + kt3 + " §8⇨ §f" + killtop.get(2));
+            }
+
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.sendMessage("       §6Tus Kills §8⇨ §f" + kills.get(p.getName()));
+            }
             if (score.get("BlueTeam") == 10) {
-                p.sendMessage("§1-----------------------");
+                Bukkit.broadcastMessage("§1-----------------------");
             } else if (score.get("RedTeam") == 10) {
-                p.sendMessage("§4-----------------------");
-            }
-            p.sendMessage("            §6Ganador");
-            if (score.get("BlueTeam") == 10) {
-                p.sendMessage("          §7Equipo §9Azul");
-            } else if (score.get("RedTeam") == 10) {
-                p.sendMessage("          §7Equipo §cRojo");
-            }
-            p.sendMessage("           §7Top Kills");
-            if (kills.get(p.getName()).equals(killtop.get(0))) {
-                String kt1 = p.getName();
-                p.sendMessage("       §61- §7" + kt1 + " §8⇨ §f" + killtop.get(0));
-            }
-            if (kills.get(p.getName()).equals(killtop.get(1))) {
-                String kt2 = p.getName();
-                p.sendMessage("       §62- §7" + kt2 + " §8⇨ §f" + killtop.get(1));
-            }
-            if (kills.get(p.getName()).equals(killtop.get(2))) {
-                String kt3 = p.getName();
-                p.sendMessage("       §63- §7" + kt3 + " §8⇨ §f" + killtop.get(2));
-            }
-            p.sendMessage("       §6Tus Kills §8⇨ §f" + kills.get(p.getName()));
-            if (score.get("BlueTeam") == 10) {
-                p.sendMessage("§1-----------------------");
-            } else if (score.get("RedTeam") == 10) {
-                p.sendMessage("§4-----------------------");
+                Bukkit.broadcastMessage("§4-----------------------");
             }
         }
     }
+
     @EventHandler
     public void onKill(PlayerDeathEvent event) {
         Player player = event.getEntity().getPlayer();
@@ -534,13 +545,13 @@ public class Towers implements Listener, CommandExecutor {
         Location redspawn = new Location(player.getWorld(), 84, 192, 1152);
         Location bluespawn = new Location(player.getWorld(), -83, 192, 1152);
         if (TowersStart) {
-            if (TimedRespawn){
+            if (TimedRespawn && !TimedRespawn2){
                 player.setGameMode(GameMode.SPECTATOR);
                 new BukkitRunnable(){
                     public void run(){
                         player.setGameMode(GameMode.SURVIVAL);
                         if (Teams.redteam.contains(player)) {
-                            event.setRespawnLocation(redspawn);
+                            player.teleport(redspawn);
                             player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
                             player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
                             player.getInventory().setHelmet(redhelm());
@@ -548,7 +559,7 @@ public class Towers implements Listener, CommandExecutor {
                             player.getInventory().setLeggings(redlegs());
                             player.getInventory().setBoots(redboots());
                         } else if (Teams.blueteam.contains(player)) {
-                            event.setRespawnLocation(bluespawn);
+                            player.teleport(bluespawn);
                             player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
                             player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
                             player.getInventory().setHelmet(bluehelm());
@@ -608,7 +619,7 @@ public class Towers implements Listener, CommandExecutor {
                     public void run(){
                         player.setGameMode(GameMode.SURVIVAL);
                         if (Teams.redteam.contains(player)) {
-                            event.setRespawnLocation(redspawn);
+                            player.teleport(redspawn);
                             player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
                             player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
                             player.getInventory().setHelmet(redhelm());
@@ -616,7 +627,7 @@ public class Towers implements Listener, CommandExecutor {
                             player.getInventory().setLeggings(redlegs());
                             player.getInventory().setBoots(redboots());
                         } else if (Teams.blueteam.contains(player)) {
-                            event.setRespawnLocation(bluespawn);
+                            player.teleport(bluespawn);
                             player.getInventory().setItem(3, new ItemStack(Material.BAKED_POTATO, 8));
                             player.getInventory().setItem(4, new ItemStack(Material.QUARTZ_BLOCK, 16));
                             player.getInventory().setHelmet(bluehelm());
@@ -860,6 +871,7 @@ public class Towers implements Listener, CommandExecutor {
                                                 Stats();
                                             }
                                             TowersStart = false;
+                                            CongelTimer = Boolean.TRUE;
                                         } else {
                                             Bukkit.broadcastMessage("§7[§6Towers§7]➛ §e" + player.getName() + " §7ha anotado un punto para el equipo §cRojo§7! Tienen §f" + (redscore + 1) + " §7punto/s!");
                                             player.teleport(redspawn);
@@ -896,6 +908,7 @@ public class Towers implements Listener, CommandExecutor {
                                                 Stats();
                                             }
                                             TowersStart = false;
+                                            CongelTimer = Boolean.TRUE;
                                         } else {
                                             Bukkit.broadcastMessage("§7[§6Towers§7]➛ §e" + player.getName() + " §7ha anotado un punto para el equipo §9Azul§7! Tienen §f" + (bluescore + 1) + " §7punto/s");
                                             player.teleport(bluespawn);
@@ -1000,15 +1013,14 @@ public class Towers implements Listener, CommandExecutor {
         return blueboots;
     }
 
-    public static int min = 00;
-    public static int sec = 00;
-    public static int hor = 00;
-    String secc;
-    String minn;
-    String horr;
-
     public void time(){
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+            int min = 00;
+            int sec = 00;
+            int hor = 00;
+            String secc;
+            String minn;
+            String horr;
             @Override
             public void run() {
                 if (sec < 10){
@@ -1036,13 +1048,17 @@ public class Towers implements Listener, CommandExecutor {
                     min = 00;
                     hor = hor + 1;
                 }
-                if (min == 30 && hor == 0){
+                if (CongelTimer){
+                    CongelTimer = Boolean.FALSE;
+                    congelTimer = horr + ":" + minn + ":" + secc;
+                }
+                if (min == 30 && hor == 0) {
                     if (!TimedRespawn) {
                         TimedRespawn = true;
                         Bukkit.broadcastMessage("§7[§9Galactic§7]➛ Han pasado §f30 minutos §7de juego. Ahora los jugadores tardarán §d5 segundos §7en respawnear.");
                     }
                 }
-                if (hor == 1){
+                if (hor == 1) {
                     if (!TimedRespawn2) {
                         TimedRespawn2 = true;
                         Bukkit.broadcastMessage("§7[§9Galactic§7]➛ Han pasado §f60 minutos §7de juego. Ahora los jugadores tardarán §d10 segundos §7en respawnear.");

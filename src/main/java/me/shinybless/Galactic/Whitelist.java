@@ -24,7 +24,7 @@ public class Whitelist implements Listener, CommandExecutor {
 
     public static boolean Whitelist = true;
     public static boolean WhitelistOwner = false;
-    public static ArrayList<String> whitelist = new ArrayList<String>();
+    public static ArrayList<Player> whitelist = new ArrayList<Player>();
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -41,19 +41,20 @@ public class Whitelist implements Listener, CommandExecutor {
                     sender.sendMessage("§b/Whitelist online §7: Agrega a los jugadores conectados a la whitelist y la activa");
                     sender.sendMessage("§b/Whitelist owner §7: Activa la whitelist y permite entrar solo al owner (solo el owner puede usar este comando)");
                 } else if (args[0].equalsIgnoreCase("add")) {
-                    String str = args[1];
-                    if (!Main.galacticplayers.contains(str)){
+                    if (Bukkit.getOfflinePlayer(args[1]) == null){
                         sender.sendMessage("§7El jugador no existe!");
                     } else {
-                        whitelist.add(str);
-                        Bukkit.broadcastMessage("§7[§2Whitelist§7]➛ §e " + str + " §7ha sido añadido a la §2Whitelist");
+                        Player toJoin = (Player) Bukkit.getOfflinePlayer(args[1]);
+                        whitelist.add(toJoin);
+                        Bukkit.broadcastMessage("§7[§2Whitelist§7]➛ §e " + toJoin.getName() + " §7ha sido añadido a la §2Whitelist");
                     }
                 } else if (args[0].equalsIgnoreCase("remove")) {
-                    Player target = Bukkit.getPlayerExact(args[1]);
-                    if (!whitelist.contains(target.getName())){
+                    Player target = (Player) Bukkit.getOfflinePlayer(args[1]);
+                    if (target == null) return true;
+                    if (!whitelist.contains(target)){
                         sender.sendMessage("§7Ese jugador no esta en la §aWhitelist!");
                     } else {
-                        whitelist.remove(target.getName());
+                        whitelist.remove(target);
                         Bukkit.broadcastMessage("§7[§2Whitelist§7]➛ §e " + target.getName() + " §7ha sido removido de la §aWhitelist");
                     }
                 } else if (args[0].equalsIgnoreCase("off")) {
@@ -76,9 +77,7 @@ public class Whitelist implements Listener, CommandExecutor {
                 } else if (args[0].equalsIgnoreCase("online")) {
                     Whitelist = true;
                     WhitelistOwner = false;
-                    for (Player p : Bukkit.getOnlinePlayers()){
-                        whitelist.add(p.getName());
-                    }
+                    whitelist.addAll(Bukkit.getOnlinePlayers());
                     Bukkit.broadcastMessage("§7[§2Whitelist§7]➛ Todos los jugadores conectados han sido añadidos a la §aWhitelist");
                     Bukkit.broadcastMessage("§7[§2Whitelist§7]➛ La §aWhitelist §7ha sido habilitada");
                 } else if (args[0].equalsIgnoreCase("owner") && sender.hasPermission("galactic.whitelist.owner")) {
@@ -102,7 +101,7 @@ public class Whitelist implements Listener, CommandExecutor {
         Player player = event.getPlayer();
         if (Whitelist){
             if (!player.hasPermission("galactic.whitelist")){
-                if (!whitelist.contains(player.getName())) {
+                if (!whitelist.contains(player)) {
                     player.kickPlayer("§cNo estás en la Whitelist!");
                     event.setJoinMessage("");
                 }
@@ -121,7 +120,7 @@ public class Whitelist implements Listener, CommandExecutor {
         Player player = event.getPlayer();
         if (Whitelist){
             if (!player.hasPermission("galactic.whitelist")){
-                if (!whitelist.contains(player.getName())) {
+                if (!whitelist.contains(player)) {
                     event.setQuitMessage("");
                 }
             }
