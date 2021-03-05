@@ -1,9 +1,11 @@
 package me.shinybless.Galactic;
 
-import jdk.nashorn.internal.ir.Block;
+import me.shinybless.Galactic.Commands.Comandos;
 import me.shinybless.Galactic.Commands.Staff;
 import me.shinybless.Galactic.Commands.Teams;
 import me.shinybless.Galactic.FastBoard.FastBoard;
+import me.shinybless.Galactic.Towers.Towers;
+import me.shinybless.Galactic.TowersWars.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -14,13 +16,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.jcp.xml.dsig.internal.dom.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +60,13 @@ public class Eventos implements Listener{
         Player player = event.getPlayer();
         Location spawn = new Location(Bukkit.getWorld("world"), 0.4, 64, 1024.4);
         event.setJoinMessage(prefix + ChatColor.YELLOW + player.getName());
+        /*if (Comandos.TowersWars){
+            if (NPC.NPC == null || NPC.NPC.isEmpty()){
+                return;
+            } else {
+                NPC.addJoinPacket(event.getPlayer());
+            }
+        }*/
         if (!Towers.TowersStart){
             player.teleport(spawn);
             player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, Integer.MAX_VALUE, 0));

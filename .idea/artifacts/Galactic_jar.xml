@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="Galactic:jar">
-    <output-path>$USER_HOME$/Desktop/PluginsIntellIJ</output-path>
+    <output-path>$USER_HOME$/Documents/A-Eze/Juegos/Minecraft/Plugins</output-path>
     <root id="archive" name="Galactic.jar">
       <element id="module-output" name="Galactic" />
     </root>

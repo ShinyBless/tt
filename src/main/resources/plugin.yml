@@ -2,6 +2,7 @@ name: Galactic
 version: ${project.version}
 main: me.shinybless.Galactic.Main
 authors: [ ShinyBless ]
+api-version: 1.16
 
 commands:
   nofall:
@@ -11,6 +12,7 @@ commands:
   superheroes:
   skyoff:
   underoff:
+  bowless:
   scens:
   config:
   staffconfig:
@@ -22,15 +24,24 @@ commands:
   start:
   team:
   teamchat:
-  tc:
+    aliases: tc
   staffchat:
-  sc:
+    aliases: sc
   captains:
   choose:
   towers:
   dropiron:
   droplapis:
   broadcast:
-  bc:
+    aliases: bc
   whitelist:
   givepowers:
+  clearchat:
+  teaminventory:
+    aliases:
+      - ti
+      - bp
+      - backpack
+  helpop:
+
+  towerswars:

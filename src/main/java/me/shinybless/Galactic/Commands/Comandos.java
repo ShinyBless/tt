@@ -1,6 +1,9 @@
 package me.shinybless.Galactic.Commands;
 
 import me.shinybless.Galactic.*;
+import me.shinybless.Galactic.Towers.Menu;
+import me.shinybless.Galactic.Towers.MenuItems;
+import me.shinybless.Galactic.Utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -28,19 +31,24 @@ public class Comandos implements CommandExecutor, Listener {
         plugin.getCommand("nofall").setExecutor(this);
         plugin.getCommand("skyoff").setExecutor(this);
         plugin.getCommand("superheroes").setExecutor(this);
+        plugin.getCommand("bowless").setExecutor(this);
         plugin.getCommand("scens").setExecutor(this);
         plugin.getCommand("givepowers").setExecutor(this);
         plugin.getCommand("config").setExecutor(this);
+        plugin.getCommand("clearchat").setExecutor(this);
+        plugin.getCommand("helpop").setExecutor(this);
     }
 
-    public static Inventory staffmenu = Bukkit.createInventory(null, 27, "StaffMenu");
-    public Inventory staffscenarios = Bukkit.createInventory(null, 27, "StaffScenarios");
-    public Inventory staffconfig = Bukkit.createInventory(null, 27, "StaffConfig");
-    public Inventory stafftowers = Bukkit.createInventory(null, 27, "StaffTowers");
+    public static Inventory staffmenu = Bukkit.createInventory(null, 27, "Config");
+    public Inventory staffscenarios = Bukkit.createInventory(null, 27, "Config Scenarios");
+    public Inventory staffconfig = Bukkit.createInventory(null, 27, "Config General");
+    public Inventory stafftowers = Bukkit.createInventory(null, 27, "Config de Towers");
 
     public static boolean Towers = true;
     public static boolean Walls = false;
     public static boolean Bingo = false;
+    public static boolean DestruyeAlNexus = false;
+    public static boolean TowersWars = true;
 
     public static boolean Captains = true;
     public static boolean InCaptains = false;
@@ -61,9 +69,13 @@ public class Comandos implements CommandExecutor, Listener {
     public static boolean Bowless = false;
     public static boolean EnchantsOFF = false;
     public static boolean EnchantsNerf = false;
+    public static boolean VengefulSpirits = false;
+    public static boolean TeamSwap = false;
+    public static boolean TeamInventory = false;
+    public static boolean aaaa = false;
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String s, String[] strings) {
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (sender.hasPermission("galactic.hasteyboys") && cmd.getName().equalsIgnoreCase("hasteyboys")) {
             if (!HasteyBoys) {
                 HasteyBoys = true;
@@ -142,6 +154,16 @@ public class Comandos implements CommandExecutor, Listener {
                 Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §cUnderOff §4off");
                 return true;
             }
+        } else if (sender.hasPermission("galactic.bowless") && cmd.getName().equalsIgnoreCase("bowless")) {
+                if (!Bowless) {
+                    Bowless = true;
+                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §6Bowless §2on");
+                    return true;
+                } else if (Bowless) {
+                    Bowless = false;
+                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §6Bowless §4off");
+                    return true;
+                }
         } else if (cmd.getName().equalsIgnoreCase("scens")) {
             Menu.ScenariosMenu((Player) sender);
             return true;
@@ -219,7 +241,44 @@ public class Comandos implements CommandExecutor, Listener {
             if (Bowless) {
                 sender.sendMessage("§6➛Bowless: §7No se pueden usar arcos.");
             }
+            if (VengefulSpirits) {
+                sender.sendMessage("§6➛VengefulSpirits: §7Al morir spawnea una entidad en tu lugar, cada entidad tiene su probabilidad, mientras mas fuerte menos probabilidad tiene.");
+            }
+            if (TeamSwap) {
+                sender.sendMessage("§6➛TeamSwap: §7Cada 10 minutos 2 jugadores al azar intercambian equipos.");
+            }
+            if (TeamInventory) {
+                sender.sendMessage("§6➛TeamInventory: §7Los equipos comparten un inventario privado que pueden abrir con /ti.");
+            }
+
             return true;
+        } else if (cmd.getName().equalsIgnoreCase("teaminventory")){
+            if (TeamInventory){
+                if (sender instanceof Player) {
+                    Scenarios.TeamInventoryScen((Player) sender);
+                }
+            } else {
+                sender.sendMessage("§7No puedes usar el TeamInventory porque el scenario no esta activado!");
+            }
+        } else if (sender.hasPermission("galactic.prefix.host") && cmd.getName().equalsIgnoreCase("clearchat")) {
+            Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage("   ");
+            Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage("   ");
+            Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage("   ");
+            Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage("   ");
+            Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage("   ");
+            Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage(" ");Bukkit.broadcastMessage("  ");Bukkit.broadcastMessage("   ");
+            Bukkit.broadcastMessage(Utils.chat("&#313535[&9&lGalactic&#313535] &#4b5061»&b " + sender.getName() + " &fClereo el chat"));
+            return true;
+        } else if (cmd.getName().equalsIgnoreCase("helpop")){
+            if (args.length == 0){
+                sender.sendMessage("§7/Helpop <mensaje>");
+            } else {
+                String message = args[0];
+                for (Player p : Eventos.staff) {
+                    p.sendMessage("§7[§4HelpOP§7]➛ §e" + message);
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -316,6 +375,9 @@ public class Comandos implements CommandExecutor, Listener {
         staffscenarios.setItem(3, MenuItems.staffscenitem4());
         staffscenarios.setItem(4, MenuItems.staffscenitem5());
         staffscenarios.setItem(5, MenuItems.staffscenitem6());
+        staffscenarios.setItem(6, MenuItems.staffscenitem7());
+        staffscenarios.setItem(7, MenuItems.staffscenitem8());
+        staffscenarios.setItem(8, MenuItems.staffscenitem9());
         p.openInventory(staffscenarios);
     }
 
@@ -337,7 +399,7 @@ public class Comandos implements CommandExecutor, Listener {
     public void onClick(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         ItemStack clicked = event.getCurrentItem();
-        if (event.getView().getTitle().equalsIgnoreCase("StaffMenu")) {
+        if (event.getView().getTitle().equalsIgnoreCase("Config")) {
             if (clicked.getType() == Material.DIAMOND_PICKAXE) {
                 event.setCancelled(true);
                 StaffScen(player);
@@ -345,7 +407,7 @@ public class Comandos implements CommandExecutor, Listener {
                 event.setCancelled(true);
                 StaffConfig(player);
             }
-        } else if (event.getView().getTitle().equalsIgnoreCase("StaffScenarios")) {
+        } else if (event.getView().getTitle().equalsIgnoreCase("Config Scenarios")) {
             if (clicked.getType() == Material.IRON_PICKAXE) {
                 if (!Comandos.HasteyBoys) {
                     event.setCancelled(true);
@@ -418,8 +480,44 @@ public class Comandos implements CommandExecutor, Listener {
                     StaffScen(player);
                     Bowless = false;
                 }
+            } else if (clicked.getType() == Material.GHAST_TEAR) {
+                if (!VengefulSpirits) {
+                    event.setCancelled(true);
+                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §3VengefulSpirits §2ON");
+                    StaffScen(player);
+                    VengefulSpirits = true;
+                } else {
+                    event.setCancelled(true);
+                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §3VengefulSpirits §4OFF");
+                    StaffScen(player);
+                    VengefulSpirits = false;
+                }
+            } else if (clicked.getType() == Material.ENDER_PEARL) {
+                if (!TeamSwap) {
+                    event.setCancelled(true);
+                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §2TeamSwap §2ON");
+                    StaffScen(player);
+                    TeamSwap = true;
+                } else {
+                    event.setCancelled(true);
+                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §2TeamSwap §4OFF");
+                    StaffScen(player);
+                    TeamSwap = false;
+                }
+            } else if (clicked.getType() == Material.CHEST) {
+                if (!TeamInventory) {
+                    event.setCancelled(true);
+                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §6TeamInventory §2ON");
+                    StaffScen(player);
+                    TeamInventory = true;
+                } else {
+                    event.setCancelled(true);
+                    Bukkit.broadcastMessage("§7[§9Galactic§7]➛ §6TeamInventory §4OFF");
+                    StaffScen(player);
+                    TeamInventory = false;
+                }
             }
-        } else if (event.getView().getTitle().equalsIgnoreCase("StaffConfig")) {
+        } else if (event.getView().getTitle().equalsIgnoreCase("Config General")) {
             if (clicked.getType() == Material.BOW) {
                 if (Towers) {
                     event.setCancelled(true);
@@ -442,7 +540,7 @@ public class Comandos implements CommandExecutor, Listener {
                 } else {
                     event.setCancelled(true);
                 }
-            } else if (clicked.getType() == Material.REDSTONE_COMPARATOR) {
+            } else if (clicked.getType() == Material.COMPARATOR) {
                 if (Towers) {
                     event.setCancelled(true);
                     StaffTowers(player);
@@ -451,7 +549,7 @@ public class Comandos implements CommandExecutor, Listener {
                 } else if (Bingo) {
                     event.setCancelled(true);
                 }
-            } else if (clicked.getType() == Material.TOTEM) {
+            } else if (clicked.getType() == Material.TOTEM_OF_UNDYING) {
                 if (Captains) {
                     event.setCancelled(true);
                     player.sendMessage("§7Teams actuales: §6InCaptains");
@@ -494,7 +592,7 @@ public class Comandos implements CommandExecutor, Listener {
                     StaffConfig(player);
                 }
             }
-        } else if (event.getView().getTitle().equalsIgnoreCase("StaffTowers")) {
+        } else if (event.getView().getTitle().equalsIgnoreCase("Config de Towers")) {
             if (clicked.getType() == Material.FEATHER) {
                 if (SkyOff) {
                     event.setCancelled(true);
@@ -507,7 +605,7 @@ public class Comandos implements CommandExecutor, Listener {
                     SkyOff = true;
                     StaffTowers(player);
                 }
-            } else if (clicked.getType() == Material.ENCHANTMENT_TABLE) {
+            } else if (clicked.getType() == Material.ENCHANTING_TABLE) {
                 if (EnchantsON) {
                     event.setCancelled(true);
                     player.sendMessage("§7Enchants Nerf");

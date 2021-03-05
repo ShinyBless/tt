@@ -3,7 +3,7 @@ package me.shinybless.Galactic.Commands;
 import me.shinybless.Galactic.Eventos;
 import me.shinybless.Galactic.Main;
 import me.shinybless.Galactic.Scenarios;
-import me.shinybless.Galactic.Towers;
+import me.shinybless.Galactic.Towers.Towers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -14,8 +14,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
 
@@ -28,9 +30,7 @@ public class Teams implements Listener, CommandExecutor {
         plugin.getCommand("start").setExecutor(this);
         plugin.getCommand("team").setExecutor(this);
         plugin.getCommand("teamchat").setExecutor(this);
-        plugin.getCommand("tc").setExecutor(this);
         plugin.getCommand("staffchat").setExecutor(this);
-        plugin.getCommand("sc").setExecutor(this);
         plugin.getCommand("captains").setExecutor(this);
         plugin.getCommand("choose").setExecutor(this);
     }
@@ -57,6 +57,11 @@ public class Teams implements Listener, CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        ScoreboardManager manager = Bukkit.getServer().getScoreboardManager();
+        assert manager != null;
+        Scoreboard board = manager.getMainScoreboard();
+        Team red = board.getTeam("Red");
+        Team blue = board.getTeam("Blue");
         if (sender.hasPermission("Galactic.team") && cmd.getName().equalsIgnoreCase("team")) {
             if (args.length < 2) {
                 sender.sendMessage("§7Faltaron argumentos!");
@@ -79,9 +84,9 @@ public class Teams implements Listener, CommandExecutor {
                             target.sendMessage("§7Ahora estás en el equipo §cRojo");
                             sender.sendMessage("§e" + target.getName() + " §7ahora forma parte del equipo §cRojo");
                             if (Comandos.Bingo) {
-                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join red " + target.getName());
+                                Bukkit.getServer().dispatchCommand(sender, "minecraft:team join red " + target.getName());
                             } else {
-                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Red " + target.getName());
+                                red.addPlayer(target);
                             }
                             if (Comandos.Towers) {
                                 if (Towers.TowersStart) {
@@ -104,7 +109,7 @@ public class Teams implements Listener, CommandExecutor {
                             redteam.remove(target);
                             target.sendMessage("§7Ya no estás en el equipo §cRojo");
                             sender.sendMessage("§e" + target.getName() + " §7ya no forma parte del equipo §cRojo");
-                            Bukkit.getServer().dispatchCommand(sender, "scoreboard teams leave " + target.getName());
+                            red.removePlayer(target);
                             target.teleport(spawn);
                             Scenarios.resistance.remove(target.getName());
                             Scenarios.health.remove(target.getName());
@@ -130,9 +135,9 @@ public class Teams implements Listener, CommandExecutor {
                             target.sendMessage("§7Ahora estás en el equipo §9Azul");
                             sender.sendMessage("§e" + target.getName() + " §7ahora forma parte del equipo §9Azul");
                             if (Comandos.Bingo) {
-                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join blue " + target.getName());
+                                Bukkit.getServer().dispatchCommand(sender, "minecraft:team join blue " + target.getName());
                             } else {
-                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Blue " + target.getName());
+                                blue.addPlayer(target);
                             }
                             if (Comandos.Towers) {
                                 if (Towers.TowersStart) {
@@ -153,7 +158,7 @@ public class Teams implements Listener, CommandExecutor {
                             blueteam.remove(target);
                             target.sendMessage("§7Ya no estás en el equipo §9Azul");
                             sender.sendMessage("§e" + target.getName() + " §7ya no forma parte del equipo §9Azul");
-                            Bukkit.getServer().dispatchCommand(sender, "scoreboard teams leave " + target.getName());
+                            blue.removePlayer(target);
                             target.teleport(spawn);
                             Scenarios.resistance.remove(target.getName());
                             Scenarios.health.remove(target.getName());
@@ -183,9 +188,9 @@ public class Teams implements Listener, CommandExecutor {
                             target.sendMessage("§7Ahora estás en el equipo §aVerde");
                             sender.sendMessage("§e" + target.getName() + " §7ahora forma parte del equipo §aVerde");
                             if (Comandos.Bingo) {
-                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join greem " + target.getName());
+                                Bukkit.getServer().dispatchCommand(sender, "minecraft:team join green " + target.getName());
                             } else {
-                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Greem " + target.getName());
+                                Bukkit.getServer().dispatchCommand(sender, "minecraft:team join Green " + target.getName());
                             }
                             if (Comandos.Towers) {
                                 if (Towers.TowersStart) {
@@ -206,7 +211,7 @@ public class Teams implements Listener, CommandExecutor {
                             greenteam.remove(target);
                             target.sendMessage("§7Ya no estás en el equipo §aVerde");
                             sender.sendMessage("§e" + target.getName() + " §7ya no forma parte del equipo §aVerde");
-                            Bukkit.getServer().dispatchCommand(sender, "scoreboard teams leave " + target.getName());
+                            Bukkit.getServer().dispatchCommand(sender, "minecraft:team leave " + target.getName());
                             target.teleport(spawn);
                             Scenarios.resistance.remove(target.getName());
                             Scenarios.health.remove(target.getName());
@@ -236,9 +241,9 @@ public class Teams implements Listener, CommandExecutor {
                             target.sendMessage("§7Ahora estás en el equipo §eAmarillo");
                             sender.sendMessage("§e" + target.getName() + " §7ahora forma parte del equipo §eAmarillo");
                             if (Comandos.Bingo) {
-                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join yellow " + target.getName());
+                                Bukkit.getServer().dispatchCommand(sender, "minecraft:team join yellow " + target.getName());
                             } else {
-                                Bukkit.getServer().dispatchCommand(sender, "scoreboard teams join Yellow " + target.getName());
+                                Bukkit.getServer().dispatchCommand(sender, "minecraft:team join Yellow " + target.getName());
                             }
                             if (Comandos.Towers) {
                                 if (Towers.TowersStart) {
@@ -401,7 +406,7 @@ public class Teams implements Listener, CommandExecutor {
                     sender.sendMessage("§7La selección de captains no ha comenzado!");
                 }
             }
-        } else if (cmd.getName().equalsIgnoreCase("teamchat") || cmd.getName().equalsIgnoreCase("tc")) {
+        } else if (cmd.getName().equalsIgnoreCase("teamchat")) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 if (!teamchat.contains(p)) {
@@ -415,7 +420,7 @@ public class Teams implements Listener, CommandExecutor {
                     p.sendMessage("§7[§9Galactic§7]➛ Ahora tus mensajes se enviaran por el §aChat Global");
                 }
             }
-        } else if (sender.hasPermission("galactic.staffchat") && cmd.getName().equalsIgnoreCase("staffchat") || sender.hasPermission("galactic.staffchat") && cmd.getName().equalsIgnoreCase("sc")){
+        } else if (sender.hasPermission("galactic.staffchat") && cmd.getName().equalsIgnoreCase("staffchat")){
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 if (!staffchat.contains(p)) {

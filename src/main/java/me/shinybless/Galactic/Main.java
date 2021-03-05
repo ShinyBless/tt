@@ -5,10 +5,19 @@ import me.shinybless.Galactic.Commands.Staff;
 import me.shinybless.Galactic.Commands.Teams;
 import me.shinybless.Galactic.FastBoard.FastBoard;
 import me.shinybless.Galactic.FastBoard.ScoreBoard;
+import me.shinybless.Galactic.Towers.Menu;
+import me.shinybless.Galactic.Towers.Towers;
+import me.shinybless.Galactic.TowersWars.NPC;
+import me.shinybless.Galactic.TowersWars.TowersWars;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
@@ -19,16 +28,27 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        //General
         new Scenarios(this);
-        new Comandos(this);
         new Eventos(this);
-        new Menu(this);
-        new Staff(this);
-        new Teams(this);
-        new Towers(this);
         new ScoreBoard(this);
         new Whitelist(this);
-        this.LoadPlayers();
+
+        //Comandos
+        new Comandos(this);
+        new Teams(this);
+        new Staff(this);
+
+        //Towers
+        new Menu(this);
+        new Towers(this);
+
+        //TowersWars
+        new TowersWars(this);
+
+
+        Blue();
+        Red();
 
         getServer().getScheduler().runTaskTimer(this, () -> {
             for (FastBoard board : boards.values()) {
@@ -39,7 +59,7 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.SaveConfigyml();
+        //this.SaveConfigyml();
     }
 
     @EventHandler
@@ -50,16 +70,36 @@ public final class Main extends JavaPlugin {
         }
     }
 
-    public void SaveConfigyml(){
-        for (String p : galacticplayers){
-            getConfig().set("galactic.players", galacticplayers);
+    public void Blue(){
+        ScoreboardManager manager = Bukkit.getServer().getScoreboardManager();
+        assert manager != null;
+        Scoreboard board = manager.getNewScoreboard();
+        Team blue = board.registerNewTeam("Blue");
+        blue.setAllowFriendlyFire(false);
+        blue.setColor(ChatColor.BLUE);
+        blue.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
+    }
+
+    public void Red(){
+        ScoreboardManager manager = Bukkit.getServer().getScoreboardManager();
+        assert manager != null;
+        Scoreboard board = manager.getNewScoreboard();
+        Team red = board.registerNewTeam("Red");
+        red.setAllowFriendlyFire(false);
+        red.setColor(ChatColor.RED);
+        red.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
+    }
+
+    /*public void SaveConfigyml(){
+        for (String p : ){
+            getConfig().set("", );
         }
     }
 
     public void LoadPlayers(){
-        if (getConfig().getConfigurationSection("galactic.players") != null) {
-            Set<String> set = getConfig().getConfigurationSection("galactic.players").getKeys(false);
-            galacticplayers.addAll(set);
+        if (getConfig().getConfigurationSection("") != null) {
+            Set<String> set = getConfig().getConfigurationSection("").getKeys(false);
+            .addAll(set);
         }
-    }
+    }*/
 }

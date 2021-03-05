@@ -1,12 +1,10 @@
 package me.shinybless.Galactic.Commands;
 
 import me.shinybless.Galactic.Main;
-import me.shinybless.Galactic.MenuItems;
-import me.shinybless.Galactic.Towers;
+import me.shinybless.Galactic.Towers.Towers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,10 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerChatEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -59,6 +54,8 @@ public class Staff implements CommandExecutor, Listener {
                 Player target = Bukkit.getPlayerExact(args[0]);
                 if (target == null){
                     sender.sendMessage("§7El jugador no está en linea!");
+                } else if (Teams.staffchat.contains(target)){
+                    sender.sendMessage("§7No puedes mutear a un miembro del §bStaff§7!");
                 } else {
                     Bukkit.broadcastMessage("§7[§9Galactic§7]➛ El jugador " + ChatColor.YELLOW + target.getName() + " §7ha sido muteado");
                     mute.add(target.getUniqueId());
@@ -66,8 +63,10 @@ public class Staff implements CommandExecutor, Listener {
                 }
             } else {
                 Player target = Bukkit.getPlayerExact(args[0]);
-                if (target == null){
+                if (target == null) {
                     sender.sendMessage("§7El jugador no está en linea!");
+                } else if (Teams.staffchat.contains(target)){
+                    sender.sendMessage("§7No puedes mutear a un miembro del §bStaff§7!");
                 } else {
                     Bukkit.broadcastMessage("§7[§9Galactic§7]➛ El jugador " + ChatColor.YELLOW + target.getName() + " §7ha sido muteado por " + args[1] + " minuto/s");
                     mute.add(target.getUniqueId());
@@ -90,6 +89,8 @@ public class Staff implements CommandExecutor, Listener {
                 Player target = Bukkit.getPlayerExact(args[0]);
                 if (!mute.contains(target.getUniqueId())){
                     sender.sendMessage(ChatColor.YELLOW + target.getName() + " §7no esta mute" );
+                } else if (Teams.staffchat.contains(target)){
+                    sender.sendMessage("§7No puedes mutear a un miembro del §bStaff§7!");
                 } else {
                     Bukkit.broadcastMessage("§7[§9Galactic§7]➛ El jugador " + ChatColor.YELLOW + target.getName() + " §7ha sido desmuteado");
                     mute.remove(target.getUniqueId());
@@ -132,7 +133,7 @@ public class Staff implements CommandExecutor, Listener {
                     int time = Integer.parseInt(args[1]);
                     new BukkitRunnable() {
                         public void run() {
-                            if (!jail.contains(target.getUniqueId())){
+                            if (!jail.contains(target.getUniqueId()) && !mute.contains(target.getUniqueId())){
                                 cancel();
                             }
                             jail.remove(target.getUniqueId());
@@ -164,12 +165,11 @@ public class Staff implements CommandExecutor, Listener {
                     jail.remove(target.getUniqueId());
                     target.sendMessage("§7Has sido desencarcelado y desmuteado!");
                 }
-                return true;
             } else {
                 sender.sendMessage("§7Argumentos incorrectos!");
                 sender.sendMessage("§7/unjail <jugador>");
-                return true;
             }
+            return true;
         }
         return false;
     }
@@ -184,7 +184,7 @@ public class Staff implements CommandExecutor, Listener {
             }
         }
         if (MuteAll){
-            if (!Teams.globalchat.contains(player)) {
+            if (Teams.globalchat.contains(player)) {
                 event.setCancelled(true);
                 player.sendMessage("§7El chat esta mute!");
             }
@@ -206,8 +206,10 @@ public class Staff implements CommandExecutor, Listener {
         if (block.getX() >= x1 && block.getX() <= x2) {
             if (block.getY() >= y1 && block.getY() <= y2) {
                 if (block.getZ() >= z1 && block.getZ() <= z2) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7No puedes romper bloques en esta zona!");
+                    if (!player.hasPermission("galactic.jail.break")) {
+                        event.setCancelled(true);
+                        player.sendMessage("§7No puedes romper bloques en esta zona!");
+                    }
                 }
             }
         }
@@ -228,8 +230,10 @@ public class Staff implements CommandExecutor, Listener {
         if (block.getX() >= x1 && block.getX() <= x2) {
             if (block.getY() >= y1 && block.getY() <= y2) {
                 if (block.getZ() >= z1 && block.getZ() <= z2) {
-                    event.setCancelled(true);
-                    player.sendMessage("§7No puedes poner bloques en esta zona!");
+                    if (!player.hasPermission("galactic.jail.place")) {
+                        event.setCancelled(true);
+                        player.sendMessage("§7No puedes poner bloques en esta zona!");
+                    }
                 }
             }
         }
