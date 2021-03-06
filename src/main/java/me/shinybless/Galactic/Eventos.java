@@ -1,11 +1,8 @@
 package me.shinybless.Galactic;
 
-import me.shinybless.Galactic.Commands.Comandos;
 import me.shinybless.Galactic.Commands.Staff;
 import me.shinybless.Galactic.Commands.Teams;
 import me.shinybless.Galactic.FastBoard.FastBoard;
-import me.shinybless.Galactic.Towers.Towers;
-import me.shinybless.Galactic.TowersWars.NPC;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;

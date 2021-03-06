@@ -1,7 +1,6 @@
 package me.shinybless.Galactic.FastBoard;
 
 import me.shinybless.Galactic.Main;
-import me.shinybless.Galactic.Towers.Towers;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;

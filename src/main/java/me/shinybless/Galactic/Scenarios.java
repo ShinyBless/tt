@@ -2,9 +2,6 @@ package me.shinybless.Galactic;
 
 import me.shinybless.Galactic.Commands.Comandos;
 import me.shinybless.Galactic.Commands.Teams;
-import me.shinybless.Galactic.Eventos;
-import me.shinybless.Galactic.Main;
-import me.shinybless.Galactic.Towers.Towers;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

@@ -5,9 +5,7 @@ import me.shinybless.Galactic.Commands.Staff;
 import me.shinybless.Galactic.Commands.Teams;
 import me.shinybless.Galactic.FastBoard.FastBoard;
 import me.shinybless.Galactic.FastBoard.ScoreBoard;
-import me.shinybless.Galactic.Towers.Menu;
 import me.shinybless.Galactic.Towers.Towers;
-import me.shinybless.Galactic.TowersWars.NPC;
 import me.shinybless.Galactic.TowersWars.TowersWars;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,9 +23,18 @@ public final class Main extends JavaPlugin {
 
     public static Map<String, FastBoard> boards = new HashMap<>();
     public static ArrayList<String> galacticplayers = new ArrayList<String>();
+    public static Towers tt;
 
     @Override
     public void onEnable() {
+
+        if (!Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
+            getLogger().severe("*** HolographicDisplays is not installed or not enabled. ***");
+            getLogger().severe("*** This plugin will be disabled. ***");
+            this.setEnabled(false);
+            return;
+        }
+
         //General
         new Scenarios(this);
         new Eventos(this);

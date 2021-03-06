@@ -3,7 +3,6 @@ package me.shinybless.Galactic.Commands;
 import me.shinybless.Galactic.Eventos;
 import me.shinybless.Galactic.Main;
 import me.shinybless.Galactic.Scenarios;
-import me.shinybless.Galactic.Towers.Towers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

@@ -1,8 +1,6 @@
 package me.shinybless.Galactic.Commands;
 
 import me.shinybless.Galactic.*;
-import me.shinybless.Galactic.Towers.Menu;
-import me.shinybless.Galactic.Towers.MenuItems;
 import me.shinybless.Galactic.Utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

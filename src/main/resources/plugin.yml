@@ -2,6 +2,7 @@ name: Galactic
 version: ${project.version}
 main: me.shinybless.Galactic.Main
 authors: [ ShinyBless ]
+softdepend: [HolographicDisplays]
 api-version: 1.16
 
 commands:
